@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class NewEmptyCSharpScript : MonoBehaviour
 {
@@ -14,14 +15,35 @@ public class NewEmptyCSharpScript : MonoBehaviour
     [SerializeField] private GameObject downTarget;
     [SerializeField] private GameObject upTarget;
     [SerializeField] private GameObject rightTarget;
-    
-    [SerializeField] private Vector3 spawnPoint = new Vector3(0f, 100f, 0f);
+
+    [SerializeField] private float spawnDistance;
+    private Vector3 _spawnPoint;
 
     [Header("Timing")]
-    [SerializeField] private float noteSpeed = 5f;            // Units per second (upward)
+    [SerializeField] private float timeOnScreen = 1f;   // Seconds for Note on Screen
+    private float _noteSpeed;
+
+    private void Start()
+    {
+        _spawnPoint = Vector3.down * spawnDistance;
+        _noteSpeed = spawnDistance / timeOnScreen;
+    }
 
     private void Update()
     {
-        throw new NotImplementedException();
+        // manual test spawn (Space)
+        if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
+        {
+            SpawnNote();
+        }
+    }
+    
+    private void SpawnNote()
+    {
+        var position = leftTarget.transform.position;
+        var noteObj = Instantiate(leftPrefab, position+_spawnPoint, Quaternion.identity);
+
+        var note = noteObj.GetComponent<NoteBehavior>();
+        note.Initialize(position, _noteSpeed);
     }
 }
