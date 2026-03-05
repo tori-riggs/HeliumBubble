@@ -100,3 +100,7 @@ InitTestScene*.unity*
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
 .DS_Store
 Helium Bubble.slnx
+
+# JetBrains IDE
+.idea/
+*.iml
