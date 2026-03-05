@@ -38,19 +38,44 @@ public class NoteSpawner : MonoBehaviour
     private void Update()
     {
         // manual test spawn (Space)
-        if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
+        if (Keyboard.current != null && Keyboard.current.aKey.wasPressedThisFrame)
         {
-            SpawnNote();
+            SpawnNote(NoteDirection.Left);
+        }
+        if (Keyboard.current != null && Keyboard.current.wKey.wasPressedThisFrame)
+        {
+            SpawnNote(NoteDirection.Up);
+        }
+        if (Keyboard.current != null && Keyboard.current.sKey.wasPressedThisFrame)
+        {
+            SpawnNote(NoteDirection.Down);
+        }
+        if (Keyboard.current != null && Keyboard.current.dKey.wasPressedThisFrame)
+        {
+            SpawnNote(NoteDirection.Right);
         }
     }
     
-    private void SpawnNote()
+    private void SpawnNote(NoteDirection direction)
     {
-        var note = _pool.SpawnNote(_tempCount++, NoteDirection.Left);
+        var note = _pool.SpawnNote(_tempCount++, direction);
         
-        var position = leftTarget.transform.position;
+        var position = GetTarget(direction).transform.position;
         note.transform.position = position + _spawnPoint;
 
         note.Initialize(position, _noteSpeed);
+    }
+    
+    // Returns Prefab by direction
+    private GameObject GetTarget(NoteDirection dir)
+    {
+        return dir switch
+        {
+            NoteDirection.Left => leftTarget,
+            NoteDirection.Up => upTarget,
+            NoteDirection.Down => downTarget,
+            NoteDirection.Right => rightTarget,
+            _ => null
+        };
     }
 }
