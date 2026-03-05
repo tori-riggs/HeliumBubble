@@ -1,14 +1,12 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class NewEmptyCSharpScript : MonoBehaviour
+public class NoteSpawner : MonoBehaviour
 {
-    [Header("Prefabs")]
-    [SerializeField] private GameObject leftPrefab;
-    [SerializeField] private GameObject downPrefab;
-    [SerializeField] private GameObject upPrefab;
-    [SerializeField] private GameObject rightPrefab;
+    [Header("Pool")]
+    [SerializeField] private GameObject poolPrefab;
 
     [Header("Target")]
     [SerializeField] private GameObject leftTarget;
@@ -23,10 +21,18 @@ public class NewEmptyCSharpScript : MonoBehaviour
     [SerializeField] private float timeOnScreen = 1f;   // Seconds for Note on Screen
     private float _noteSpeed;
 
+    private NotePool _pool;
+
+    private int _tempCount;
+
     private void Start()
     {
+        _tempCount = 0;
+        
         _spawnPoint = Vector3.down * spawnDistance;
         _noteSpeed = spawnDistance / timeOnScreen;
+
+        _pool = Instantiate(poolPrefab).GetComponent<NotePool>();
     }
 
     private void Update()
@@ -40,10 +46,11 @@ public class NewEmptyCSharpScript : MonoBehaviour
     
     private void SpawnNote()
     {
+        var note = _pool.SpawnNote(_tempCount++, NoteDirection.Left);
+        
         var position = leftTarget.transform.position;
-        var noteObj = Instantiate(leftPrefab, position+_spawnPoint, Quaternion.identity);
+        note.transform.position = position + _spawnPoint;
 
-        var note = noteObj.GetComponent<NoteBehavior>();
         note.Initialize(position, _noteSpeed);
     }
 }
