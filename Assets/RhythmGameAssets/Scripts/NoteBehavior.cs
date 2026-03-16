@@ -24,6 +24,7 @@ public class NoteBehavior : MonoBehaviour
     
     public void Initialize(Vector3 targetHitPoint, float moveSpeed)
     {
+        // initialized = false;
         this.targetHitPoint = targetHitPoint;
         speed = moveSpeed;
         initialized = true;

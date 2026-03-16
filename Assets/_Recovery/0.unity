@@ -148,8 +148,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd65943812d904a95a858495ef2eee46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChartParser
-  chartFile: {fileID: 0}
-  AudioPath: 
+  chartPath: Assets/RhythmGameAssets/Resources/Songs/notes.chart
+  audioPath: 
 --- !u!4 &173296673
 Transform:
   m_ObjectHideFlags: 0
