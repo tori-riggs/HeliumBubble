@@ -40,11 +40,13 @@ public enum Instrument
 
 public class ConnectionPacket : WebPacket
 {
+    public bool IsConnecting;
     public Instrument Instrument;
     public long TimeSent;
 
-    public ConnectionPacket(Instrument instrument) : base(Sender.CLIENT, PacketType.CONNECTION)
+    public ConnectionPacket(bool isConnecting, Instrument instrument) : base(Sender.CLIENT, PacketType.CONNECTION)
     {
+        IsConnecting = isConnecting;
         Instrument = instrument;
         TimeSent = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
     }
@@ -92,7 +94,18 @@ public class Networking : MonoBehaviour
         {
             // TODO: Change this later to be selected instrument instead
             // of bass default
-            ConnectionPacket cPacket = new(Instrument.BASS);
+            ConnectionPacket cPacket = new(true, Instrument.BASS);
+            await websocket.SendText(cPacket.ToJSON());
+        }
+    }
+
+    async void SendDisconnectPacket()
+    {
+        if (websocket.State == WebSocketState.Open)
+        {
+            // TODO: Change this later to be selected instrument instead
+            // of bass default
+            ConnectionPacket cPacket = new(false, Instrument.BASS);
             await websocket.SendText(cPacket.ToJSON());
         }
     }
@@ -106,6 +119,7 @@ public class Networking : MonoBehaviour
 
     private async void OnApplicationQuit()
     {
+        SendDisconnectPacket();
         await websocket.Close();
     }
 }
