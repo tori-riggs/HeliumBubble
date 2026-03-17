@@ -22,11 +22,13 @@ public class WebPacket
 {
     public Sender Sender;
     public PacketType Type;
+    public long TimeSent;
 
     public WebPacket(Sender sender, PacketType type)
     {
         Sender = sender;
         Type = type;
+        TimeSent = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
     }
 }
 
@@ -42,13 +44,11 @@ public class ConnectionPacket : WebPacket
 {
     public bool IsConnecting;
     public Instrument Instrument;
-    public long TimeSent;
 
     public ConnectionPacket(bool isConnecting, Instrument instrument) : base(Sender.CLIENT, PacketType.CONNECTION)
     {
         IsConnecting = isConnecting;
         Instrument = instrument;
-        TimeSent = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
     }
 
     public string ToJSON()
@@ -59,6 +59,28 @@ public class ConnectionPacket : WebPacket
     public static ConnectionPacket FromJSON(String jsonString)
     {
         return JsonConvert.DeserializeObject<ConnectionPacket>(jsonString);
+    }
+}
+
+public class ScorePacket : WebPacket
+{
+    public Instrument Instrument;
+    public int Score;
+
+    public ScorePacket(Instrument instrument, int score) : base(Sender.CLIENT, PacketType.SCORE)
+    {
+        Instrument = instrument;
+        Score = score;
+    }
+
+    public string ToJSON()
+    {
+        return JsonConvert.SerializeObject(this);
+    }
+
+    public static ScorePacket FromJSON(String jsonString)
+    {
+        return JsonConvert.DeserializeObject<ScorePacket>(jsonString);
     }
 }
 
@@ -80,9 +102,9 @@ public class Networking : MonoBehaviour
         };
 
         websocket.OnMessage += (bytes) => {
-            Debug.Log("Message received:");
-            string message = System.Text.Encoding.Default.GetString(bytes);
-            Debug.Log(message);
+            Debug.Log("Message received.");
+            //string message = System.Text.Encoding.Default.GetString(bytes);
+            //Debug.Log(message);
         };
 
         await websocket.Connect();
@@ -107,6 +129,17 @@ public class Networking : MonoBehaviour
             // of bass default
             ConnectionPacket cPacket = new(false, Instrument.BASS);
             await websocket.SendText(cPacket.ToJSON());
+        }
+    }
+
+    async void SendScorePacket(int score)
+    {
+        if (websocket.State == WebSocketState.Open)
+        {
+            // TODO: Change this later to be selected instrument instead
+            // of bass default
+            ScorePacket sPacket = new(Instrument.BASS, score);
+            await websocket.SendText(sPacket.ToJSON());
         }
     }
 
