@@ -3,19 +3,21 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace RhythmGameAssets.Scripts
 {
     public class ChartParser : MonoBehaviour
     {
-        private enum Instrument
+        private enum Instruments
         {
             GUITAR1,
             GUITAR2,
             BASS,
             PIANO,
             DRUMS,
-            VOCALS
+            VOCALS,
+            SINGLE // parsing purposes
         }
         private enum Difficulties
         {
@@ -41,8 +43,14 @@ namespace RhythmGameAssets.Scripts
         [SerializeField] private string chartPath;
         [SerializeField] private string audioPath;
 
-        [SerializeField] public string difficulty;
-        [SerializeField] public string instrument;
+        public string Difficulty { get; private set; }
+        public string Instrument { get; private set; }
+        public float Offset { get; private set; }
+        // <Position> = TS <Numerator> <Denominator exponent> 
+        // Note: might change in the middle of the song!
+        public int TimeSignature { get; private set; }
+        // <Position> = B <Tempo>
+        public float BPM { get; private set; } // tempo
 
         // String: Section, Array: [start, end]
         // private Dictionary<string, Array> sections = new();
@@ -52,8 +60,8 @@ namespace RhythmGameAssets.Scripts
         {
             // Get full path of the Songs directory
             // Alternative: ToLower().FirstCharacterToUpper()
-            difficulty = nameof(Difficulties.HARD); // default difficulty
-            instrument = nameof(Instrument.GUITAR1); // default instrument
+            Difficulty = nameof(Difficulties.HARD); // default difficulty
+            Instrument = nameof(Instruments.GUITAR1); // default instrument
             songsDir = Path.GetFullPath(songsDir);
             // TODO: Add a way to get Songs/<song-name>/notes.chart. Probably would just be using the song name or a regex but worry about that later.
             // Get the file path of the notes.chart file
@@ -73,6 +81,7 @@ namespace RhythmGameAssets.Scripts
             {
                 // using (FileStream fs = File.OpenRead(chartPath))
                 Boolean parsingMode = false;
+                Boolean syncTrackMode = false;
                 using (StreamReader reader = new StreamReader(chartPath))
                 {
                     // byte[] b = new byte[1024];
@@ -82,27 +91,63 @@ namespace RhythmGameAssets.Scripts
                     string line;
                     while ((line = reader.ReadLine()) != null)
                     {
-                        // var line = temp.GetString(b, 0, readLen);
-                        if (!parsingMode && line.StartsWith("["))
+                        if (line.StartsWith("{") || line.StartsWith("}"))
                         {
-                            // Code to remove the empty entries by CBinet:
-                            // https://stackoverflow.com/a/44868165/16776633
-                            string[] header = Regex.Split(line, 
-                                @"([A-Z][^A-Z\]]+)").Where(s => s != string.Empty).ToArray();
-                            if (Enum.IsDefined(typeof(Difficulties), header[1]) 
-                                && Enum.IsDefined(typeof(Instrument), header[2]))
+                            continue;
+                        }
+                        if (parsingMode)
+                        {
+                            ParseNotes(line.Trim());
+                        }
+                        else if (syncTrackMode)
+                        {
+                            line = line.Trim();
+                            string[] lineSplit = line.Split(' ');
+                            ParseSyncTrack(lineSplit); // get Time Signature
+                            line = reader.ReadLine(); // read next line
+                            if (line == null)
                             {
-                                // TODO getters and setters
-                                difficulty = header[1].ToUpper();
-                                instrument = header[2].ToUpper();
-                                reader.ReadLine(); // skip '{'
-                                // TODO parse notes
-                                parsingMode = true;
+                                throw new IOException("Time Signature or BPM expected.");
                             }
-                            // TODO parse SyncTrack stuff
-                        } else if (parsingMode)
+                            lineSplit = line.Trim().Split(' ');
+                            ParseSyncTrack(lineSplit); // get BPM
+                            if ((line = reader.ReadLine()) != null 
+                                    && line.StartsWith("}"))
+                                syncTrackMode = false; // turn off SyncTrack parsing
+                        }
+                        // if (!parsingMode && line.StartsWith("Offset: "))
+                        // var line = temp.GetString(b, 0, readLen);
+                        else if (!parsingMode && line.StartsWith("["))
                         {
-                            ParseNotes(line);
+                            if (line.Equals("[SyncTrack]"))
+                            {
+                                reader.ReadLine(); // skip "{"
+                                // THIS ASSUME THERE'S A CONSTANT BPM AND TIME SIGNATURE
+                                // TODO: worry about changing bpms/time signatures???
+                                // Defaults to 2 (x/4) if unspecified
+                                syncTrackMode = true;
+                                // TODO: BPM/Time Signature class?
+                            }
+                            else
+                            {
+                                // Code to remove the empty entries by CBinet:
+                                // https://stackoverflow.com/a/44868165/16776633
+                                string[] header = Regex.Split(line, 
+                                    @"([A-Z][^A-Z\]]+)").Where(s => s != string.Empty).ToArray();
+                                if (Enum.IsDefined(typeof(Difficulties), header[1].ToUpper()) 
+                                    && Enum.IsDefined(typeof(Instruments), header[2].ToUpper()))
+                                {
+                                    // TODO getters and setters
+                                    Difficulty = header[1].ToUpper();
+                                    Instrument = header[2].ToUpper();
+                                    reader.ReadLine(); // skip '{'
+                                    parsingMode = true;
+                                }
+                            }
+                        } else if (line.Trim().StartsWith("Off"))
+                        {
+                            string[] offsetLine = line.Trim().Split(' ');
+                            Offset = float.Parse(offsetLine[2]);
                         }
                     }
                 }
@@ -120,6 +165,32 @@ namespace RhythmGameAssets.Scripts
         
         }
 
+        // TODO documentation
+        /// <summary>
+        /// Assumes position 0
+        /// Global variables are changed so no need for return
+        /// </summary>
+        /// <param name="line"></param>
+        private void ParseSyncTrack(string[] line)
+        {
+            // TimeSignature = 4; // default
+            switch (line[2])
+            {
+                // TODO error handling
+                case "TS":
+                    // <Position> = TS <Numerator> <Denominator exponent>
+                    // Position of 0 is assumed
+                    TimeSignature = int.Parse(line[3]);
+                    // x/4 is assumed
+                    // TODO figure out if optional denom exponent is needed
+                    break;
+                case "B":
+                    // <Position> = B <Tempo>
+                    // Position of 0 is assumed
+                    BPM = float.Parse(line[3]) / 1000;
+                    break;
+            }
+        }
         private void ParseNotes(string line)
         {
             // <Position> = N <Type> <Length>
@@ -127,33 +198,38 @@ namespace RhythmGameAssets.Scripts
             if (Char.Parse(note[2]) == 'N')
             {
                 // TODO error handling
-                int position = int.Parse(note[0]);
-                int typeNum = int.Parse(note[1]);
-                string noteDirection;
-                if (typeNum is >= 0 and < 4)
+                int position = int.Parse(note[0]); // ticks position
+                int typeNum = int.Parse(note[3]); // direction of note as int
+                int length = int.Parse(note[4]); // length of note in ticks
+                NoteDirection noteDirection; // corresponding direction of the note
+                if (typeNum is >= 0 and <= 4)
                 {
                     // TODO error handling
-                    // Alt: case switch
+                    // noteDirection = _noteType[typeNum];
                     // 0 = Left, 1 = Up, 2 = Down, 3 = Right
                     switch (typeNum)
                     {
                         case 0:
-                            noteDirection = nameof(NoteDirection.Left);
+                            noteDirection = NoteDirection.Left;
                             break;
                         case 1:
-                            noteDirection = nameof(NoteDirection.Up);
+                            noteDirection = NoteDirection.Up;
                             break;
                         case 2:
-                            noteDirection = nameof(NoteDirection.Down);
+                            noteDirection = NoteDirection.Down;
                             break;
                         case 3:
-                            noteDirection = nameof(NoteDirection.Right);
+                            noteDirection = NoteDirection.Right;
+                            break;
+                        // CloneHero has 5 lanes so just make the 4th type right
+                        case 4:
+                            noteDirection = NoteDirection.Right;
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
-                    // noteDirection = _noteType[typeNum];
                 }
+                // NoteSpawner.SpawnNote(noteDirection);
             }
         }
     }
