@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -51,6 +52,8 @@ namespace RhythmGameAssets.Scripts
         public int TimeSignature { get; private set; }
         // <Position> = B <Tempo>
         public float BPM { get; private set; } // tempo
+        private int noteCount = 0;
+        public List<ChartNote> Notes = new();
 
         // String: Section, Array: [start, end]
         // private Dictionary<string, Array> sections = new();
@@ -116,8 +119,7 @@ namespace RhythmGameAssets.Scripts
                                 syncTrackMode = false; // turn off SyncTrack parsing
                         }
                         // if (!parsingMode && line.StartsWith("Offset: "))
-                        // var line = temp.GetString(b, 0, readLen);
-                        else if (!parsingMode && line.StartsWith("["))
+                        else if (line.StartsWith("["))
                         {
                             if (line.Equals("[SyncTrack]"))
                             {
@@ -195,13 +197,15 @@ namespace RhythmGameAssets.Scripts
         {
             // <Position> = N <Type> <Length>
             string[] note = line.Split(' ');
+            // Some charts include events in this section, ignore.
             if (Char.Parse(note[2]) == 'N')
             {
                 // TODO error handling
-                int position = int.Parse(note[0]); // ticks position
+                int position = int.Parse(note[0]); // tick position of note
                 int typeNum = int.Parse(note[3]); // direction of note as int
                 int length = int.Parse(note[4]); // length of note in ticks
                 NoteDirection noteDirection; // corresponding direction of the note
+                // Types 5 and 6 are just flags for existing notes. Can be ignored for this.
                 if (typeNum is >= 0 and <= 4)
                 {
                     // TODO error handling
@@ -228,8 +232,14 @@ namespace RhythmGameAssets.Scripts
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
+                    ChartNote chartNote = new ChartNote(noteCount++, noteDirection, position, length);
+                    Notes.Add(chartNote);
+                    if (Notes.Count > 1)
+                    {
+                        ChartNote prev = Notes[chartNote.ID - 1];
+                        prev.Next = chartNote;
+                    }
                 }
-                // NoteSpawner.SpawnNote(noteDirection);
             }
         }
     }
