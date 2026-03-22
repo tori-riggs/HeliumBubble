@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public enum NoteDirection
 {
@@ -11,6 +12,18 @@ public enum NoteDirection
 
 public class NotePool : MonoBehaviour
 {
+    [Header("Target")]
+    [SerializeField] private GameObject leftTarget;
+    [SerializeField] private GameObject upTarget;
+    [SerializeField] private GameObject downTarget;
+    [SerializeField] private GameObject rightTarget;
+    [SerializeField] private float spawnDistance;
+    private Vector3 _spawnPoint;
+
+    [Header("Timing")]
+    [SerializeField] private float timeOnScreen = 1f;   // Seconds for Note on Screen
+    private float _noteSpeed;
+    
     [Header("Note Prefabs")]
     [SerializeField] private NoteBehavior leftPrefab;
     [SerializeField] private NoteBehavior upPrefab;
@@ -24,11 +37,18 @@ public class NotePool : MonoBehaviour
     // One buffer per direction
     private readonly Dictionary<NoteDirection, Stack<NoteBehavior>> _buffers = new();
 
-    // Active notes by NoteId (your "pointer lookup")
+    // Active notes by NoteId (lookup by ID)
     private readonly Dictionary<int, NoteBehavior> _activeById = new();
 
+    private int _tempCount;
+    
     private void Awake()
     {
+        _tempCount = 0;
+        
+        _spawnPoint = Vector3.down * spawnDistance;
+        _noteSpeed = spawnDistance / timeOnScreen;
+        
         _buffers[NoteDirection.Left]  = new Stack<NoteBehavior>(initialBufferSizePerDirection);
         _buffers[NoteDirection.Up]    = new Stack<NoteBehavior>(initialBufferSizePerDirection);
         _buffers[NoteDirection.Down]  = new Stack<NoteBehavior>(initialBufferSizePerDirection);
@@ -47,6 +67,27 @@ public class NotePool : MonoBehaviour
         {
             var note = CreateNewNote(dir);
             ReturnToBuffer(note, dir);
+        }
+    }
+    
+    private void Update()
+    {
+        // manual test spawn (Space)
+        if (Keyboard.current != null && Keyboard.current.aKey.wasPressedThisFrame)
+        {
+            SpawnNote(_tempCount++, NoteDirection.Left);
+        }
+        if (Keyboard.current != null && Keyboard.current.wKey.wasPressedThisFrame)
+        {
+            SpawnNote(_tempCount++, NoteDirection.Up);
+        }
+        if (Keyboard.current != null && Keyboard.current.sKey.wasPressedThisFrame)
+        {
+            SpawnNote(_tempCount++, NoteDirection.Down);
+        }
+        if (Keyboard.current != null && Keyboard.current.dKey.wasPressedThisFrame)
+        {
+            SpawnNote(_tempCount++ , NoteDirection.Right);
         }
     }
 
@@ -72,6 +113,19 @@ public class NotePool : MonoBehaviour
             _ => null
         };
     }
+    
+    // Returns Target by direction
+    private GameObject GetTarget(NoteDirection dir)
+    {
+        return dir switch
+        {
+            NoteDirection.Left => leftTarget,
+            NoteDirection.Up => upTarget,
+            NoteDirection.Down => downTarget,
+            NoteDirection.Right => rightTarget,
+            _ => null
+        };
+    }
 
     /// <summary>
     /// Spawns a note with a given NoteId + direction.
@@ -90,6 +144,12 @@ public class NotePool : MonoBehaviour
         note.Pool_Initialize(this, noteId, dir);
 
         _activeById[noteId] = note;
+        
+        var position = GetTarget(dir).transform.position;
+        note.transform.position = position + _spawnPoint;
+
+        note.Initialize(position, _noteSpeed);
+        
         return note;
     }
 
@@ -117,7 +177,7 @@ public class NotePool : MonoBehaviour
         ReturnToBuffer(note, dir);
     }
 
-    // Returns note to the buffer, adds note pack to pool
+    // Returns note to the buffer, adds note back to pool
     private void ReturnToBuffer(NoteBehavior note, NoteDirection dir)
     {
         note.gameObject.SetActive(false);

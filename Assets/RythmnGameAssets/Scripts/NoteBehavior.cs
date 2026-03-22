@@ -5,9 +5,9 @@ public class NoteBehavior : MonoBehaviour
     [Header("Cleanup")]
     [SerializeField] private float destroyAfterPassingDistance = 1.5f;
 
-    private Vector3 targetHitPoint;
-    private float speed;
-    private bool initialized = false;
+    private Vector3 _targetHitPoint;
+    private float _speed;
+    private bool _initialized = false;
     
     public int NoteId { get; private set; } = -1;
     public NoteDirection Direction { get; private set; }
@@ -24,9 +24,9 @@ public class NoteBehavior : MonoBehaviour
     
     public void Initialize(Vector3 targetHitPoint, float moveSpeed)
     {
-        this.targetHitPoint = targetHitPoint;
-        speed = moveSpeed;
-        initialized = true;
+        this._targetHitPoint = targetHitPoint;
+        _speed = moveSpeed;
+        _initialized = true;
     }
 
     // Despawns note
@@ -46,9 +46,9 @@ public class NoteBehavior : MonoBehaviour
     {
         if (!gameObject.activeSelf) return;
         
-        transform.position += Vector3.up * (speed * Time.deltaTime);
+        transform.position += Vector3.up * (_speed * Time.deltaTime);
 
-        if (transform.position.y > targetHitPoint.y + destroyAfterPassingDistance)
+        if (transform.position.y > _targetHitPoint.y + destroyAfterPassingDistance)
         {
             Despawn();
         }
