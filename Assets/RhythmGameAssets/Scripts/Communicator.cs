@@ -84,75 +84,74 @@ public class ScorePacket : WebPacket
     }
 }
 
-public class Networking : MonoBehaviour
+public class Communicator : MonoBehaviour
 {
-    WebSocket websocket;
+    private WebSocket _websocket;
 
     async void Start()
     {
-        websocket = new WebSocket("ws://localhost:8080");
+        _websocket = new WebSocket("ws://localhost:8080");
 
-        websocket.OnOpen += () => {
-            Debug.Log("Web socket connection established.");
+        _websocket.OnOpen += () => {
             SendConnectionPacket();
         };
 
-        websocket.OnClose += (e) => {
+        _websocket.OnClose += (e) => {
             Debug.Log("Web socket connection closed.");
         };
 
-        websocket.OnMessage += (bytes) => {
+        _websocket.OnMessage += (bytes) => {
             Debug.Log("Message received.");
             //string message = System.Text.Encoding.Default.GetString(bytes);
             //Debug.Log(message);
         };
 
-        await websocket.Connect();
+        await _websocket.Connect();
     }
 
     async void SendConnectionPacket()
     {
-        if (websocket.State == WebSocketState.Open)
+        if (_websocket.State == WebSocketState.Open)
         {
             // TODO: Change this later to be selected instrument instead
             // of bass default
             ConnectionPacket cPacket = new(true, Instrument.BASS);
-            await websocket.SendText(cPacket.ToJSON());
+            await _websocket.SendText(cPacket.ToJSON());
         }
     }
 
     async void SendDisconnectPacket()
     {
-        if (websocket.State == WebSocketState.Open)
+        if (_websocket.State == WebSocketState.Open)
         {
             // TODO: Change this later to be selected instrument instead
             // of bass default
             ConnectionPacket cPacket = new(false, Instrument.BASS);
-            await websocket.SendText(cPacket.ToJSON());
+            await _websocket.SendText(cPacket.ToJSON());
         }
     }
 
-    async void SendScorePacket(int score)
+    public async void SendScorePacket(int score)
     {
-        if (websocket.State == WebSocketState.Open)
+        if (_websocket.State == WebSocketState.Open)
         {
             // TODO: Change this later to be selected instrument instead
             // of bass default
             ScorePacket sPacket = new(Instrument.BASS, score);
-            await websocket.SendText(sPacket.ToJSON());
+            await _websocket.SendText(sPacket.ToJSON());
         }
     }
 
     void Update()
     {
         #if !UNITY_WEBGL || UNITY_EDITOR
-            websocket.DispatchMessageQueue();
+        _websocket.DispatchMessageQueue();
         #endif
     }
 
     private async void OnApplicationQuit()
     {
         SendDisconnectPacket();
-        await websocket.Close();
+        await _websocket.Close();
     }
 }
