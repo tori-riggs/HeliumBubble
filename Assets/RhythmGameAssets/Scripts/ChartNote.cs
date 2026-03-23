@@ -23,5 +23,11 @@ namespace RhythmGameAssets.Scripts
             Length = length;
             Next = null;
         }
+        
+        public override string ToString()
+        {
+            string nextText = Next != null ? Next.ID.ToString() : "null";
+            return $"ChartNote[ID={ID}, Direction={Direction}, Position={Position}, Length={Length}, Next={nextText}]";
+        }
     }
 }

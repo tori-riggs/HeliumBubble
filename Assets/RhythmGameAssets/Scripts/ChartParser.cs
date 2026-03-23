@@ -59,7 +59,7 @@ namespace RhythmGameAssets.Scripts
         // private Dictionary<string, Array> sections = new();
     
         // Start is called once before the first execution of Update after the MonoBehaviour is created
-        void Start()
+        void Awake()
         {
             // Get full path of the Songs directory
             // Alternative: ToLower().FirstCharacterToUpper()

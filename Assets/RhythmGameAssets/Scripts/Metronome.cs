@@ -8,7 +8,7 @@ namespace RhythmGameAssets.Scripts
         [SerializeField] private AudioSource audioSource;
 
         [Header("Playback")]
-        [SerializeField] private double startDelaySeconds = 0.1;
+        [SerializeField] private double startDelaySeconds = 2.0;
 
         private double dspStartTime;
         private bool isPlayingScheduled = false;

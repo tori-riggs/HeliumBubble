@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -5,40 +8,125 @@ namespace RhythmGameAssets.Scripts
 {
     public class PlayHandler : MonoBehaviour
     {
+        [Header("Target")]
+        [SerializeField] private HitPopEffect leftTarget;
+        [SerializeField] private HitPopEffect upTarget;
+        [SerializeField] private HitPopEffect downTarget;
+        [SerializeField] private HitPopEffect rightTarget;
+        
         [SerializeField] private Metronome metronome;
         [SerializeField] private NotePool notePool;
 
         [SerializeField] private float bpm = 121f;
         [SerializeField] private float delay = 0f; // milliseconds
         [SerializeField] private NoteDirection beatSpawnDirection = NoteDirection.Down;
+        
+        [SerializeField] private ChartParser chartParser;
 
-        private int _tempCount;
-        private int _nextBeatIndex;
-
-        private double SecondsPerBeat => 60.0 / bpm;
+        private int _nextNoteIndex;
+        Queue<int> activeNoteIds = new Queue<int>();
+        
         private double DelaySeconds => delay / 1000.0;
 
         private void Start()
         {
-            _tempCount = 0;
-            _nextBeatIndex = 0;
             metronome.StartPlayback();
+            
+            foreach (ChartNote note in chartParser.Notes)
+            {
+                Debug.Log(note);
+            }
         }
 
         private void Update()
         {
-            double songTime = metronome.GetPlaybackTime();
+            var songTime = metronome.GetPlaybackTime() * 1000.0;
 
-            while (songTime >= GetBeatTime(_nextBeatIndex))
+            while (songTime + (notePool.timeOnScreen * 1000.0) >= GetNoteTime(_nextNoteIndex))
             {
-                notePool.SpawnNote(_tempCount++, beatSpawnDirection);
-                _nextBeatIndex++;
+                activeNoteIds.Enqueue(_nextNoteIndex);
+                notePool.SpawnNote(_nextNoteIndex, chartParser.Notes[_nextNoteIndex++].Direction);
             }
+            
+            if (Keyboard.current.aKey.wasPressedThisFrame)
+            {
+                leftTarget.PlayPop();
+            }
+
+            if (Keyboard.current.wKey.wasPressedThisFrame)
+            {
+                upTarget.PlayPop();
+            }
+
+            if (Keyboard.current.sKey.wasPressedThisFrame)
+            {
+                downTarget.PlayPop();
+            }
+
+            if (Keyboard.current.dKey.wasPressedThisFrame)
+            {
+                rightTarget.PlayPop();
+            }
+
+            if (activeNoteIds.Count == 0)
+            {
+                return;
+            }
+            
+            // If input is it and there is a note within 150 milliseconds
+            // Check if that key was pressed. If not, wrong key was pressed so missed note
+            // If key was pressed, log that hit with the delay
+
+            if (songTime - 150.0 >= GetActiveNoteTime())
+            {
+                var id = activeNoteIds.Dequeue();
+                notePool.Release(notePool.GetActiveNoteById(id));
+            }
+            
+            
+            if (Keyboard.current != null &&
+                (Keyboard.current.aKey.wasPressedThisFrame ||
+                 Keyboard.current.wKey.wasPressedThisFrame ||
+                 Keyboard.current.sKey.wasPressedThisFrame ||
+                 Keyboard.current.dKey.wasPressedThisFrame))
+            {
+                var timeToNextNote = GetActiveNoteTime();
+                if (songTime + 150.0 >= timeToNextNote)
+                {
+                    var id = activeNoteIds.Dequeue();
+                    var note = chartParser.Notes[id];
+
+                    if (KeyboardPressFromDirection(note.Direction))
+                    {
+                        Debug.Log(songTime - timeToNextNote);
+                    }
+                    
+                    notePool.Release(notePool.GetActiveNoteById(id));
+                }
+            }
+            
         }
 
-        private double GetBeatTime(int beatIndex)
+        private double GetNoteTime(int noteIndex)
         {
-            return (beatIndex * SecondsPerBeat) + DelaySeconds;
+            return chartParser.Notes[noteIndex].Position * 60000.0 / (chartParser.BPM * 192);
+        }
+        
+        private double GetActiveNoteTime()
+        {
+            return chartParser.Notes[activeNoteIds.Peek()].Position * 60000.0 / (chartParser.BPM * 192);
+        }
+
+        private bool KeyboardPressFromDirection(NoteDirection direction)
+        {
+            return direction switch
+            {
+                NoteDirection.Left => Keyboard.current.aKey.wasPressedThisFrame,
+                NoteDirection.Up => Keyboard.current.wKey.wasPressedThisFrame,
+                NoteDirection.Down => Keyboard.current.sKey.wasPressedThisFrame,
+                NoteDirection.Right => Keyboard.current.dKey.wasPressedThisFrame,
+                _ => false
+            };
         }
     }
 }

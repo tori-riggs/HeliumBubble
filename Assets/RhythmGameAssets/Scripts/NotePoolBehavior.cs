@@ -22,7 +22,7 @@ namespace RhythmGameAssets.Scripts
         private Vector3 _spawnPoint;
 
         [Header("Timing")]
-        [SerializeField] private float timeOnScreen = 1f;   // Seconds for Note on Screen
+        [SerializeField] public float timeOnScreen = 1f;   // Seconds for Note on Screen
         private float _noteSpeed;
     
         [Header("Note Prefabs")]

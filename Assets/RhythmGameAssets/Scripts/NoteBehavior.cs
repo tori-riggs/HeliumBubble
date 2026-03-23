@@ -49,11 +49,6 @@ namespace RhythmGameAssets.Scripts
             if (!gameObject.activeSelf) return;
         
             transform.position += Vector3.up * (_speed * Time.deltaTime);
-
-            if (transform.position.y > _targetHitPoint.y + destroyAfterPassingDistance)
-            {
-                Despawn();
-            }
         }
     }
 }
