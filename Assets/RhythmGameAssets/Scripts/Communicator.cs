@@ -86,11 +86,12 @@ public class ScorePacket : WebPacket
 
 public class Communicator : MonoBehaviour
 {
+    [SerializeField] string websocketIP = "localhost:8080";
     private WebSocket _websocket;
 
     async void Start()
     {
-        _websocket = new WebSocket("ws://localhost:8080");
+        _websocket = new WebSocket("ws://" + websocketIP);
 
         _websocket.OnOpen += () => {
             SendConnectionPacket();
