@@ -68,7 +68,7 @@ namespace RhythmGameAssets.Scripts
             songsDir = Path.GetFullPath(songsDir);
             // TODO: Add a way to get Songs/<song-name>/notes.chart. Probably would just be using the song name or a regex but worry about that later.
             // Get the file path of the notes.chart file
-            chartPath = Path.Join(songsDir, "notes.chart");
+            chartPath = Path.Join(songsDir, chartFile);
             // /Users/nyla/Github Projects/HeliumBubbleRhythmGame/Assets/RythmnGameAssets/Resources/Songs/notes.chart
             if (File.Exists(chartPath))
             {
