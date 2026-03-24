@@ -16,21 +16,24 @@ namespace RhythmGameAssets.Scripts
         // TODO input delay stuff???
         public int Score { get; private set; }
 
-        public int NoteHitScoring(int noteTime, float hitTiming)
+        public void NoteHitScoring(double noteTime, double hitTiming)
         {
             // x ms early or x ms late
-            float delay = Math.Abs(hitTiming - noteTime);
+            double delay = Math.Abs(hitTiming - noteTime);
             if (delay <= perfectMargin)
             {
-                return perfectScore;
+                Debug.Log("Perfect!");
+                Score += perfectScore;
             } else if (delay <= greatMargin)
             {
-                return greatScore;
+                Debug.Log("Great!");
+                Score += greatScore;
             } else if (delay <= goodMargin)
             {
-                return goodScore;
+                Debug.Log("Good!");
+                Score += goodScore;
             }
-            return missScore;
+            Debug.Log("Miss!");
         }
 
         private void Start()
