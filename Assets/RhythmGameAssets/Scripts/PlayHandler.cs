@@ -73,7 +73,7 @@ namespace RhythmGameAssets.Scripts
                 return;
             }
             
-            // If input is it and there is a note within 100 milliseconds
+            // If input was hit and there is a note within 100 milliseconds
             // Check if that key was pressed. If not, wrong key was pressed so missed note
             // If key was pressed, log that hit with the delay
 
@@ -81,6 +81,10 @@ namespace RhythmGameAssets.Scripts
             {
                 var id = activeNoteIds.Dequeue();
                 notePool.Release(notePool.GetActiveNoteById(id));
+                Debug.Log("Miss!");
+                _scoreHandler.hitNotifText.text = "Miss!";
+                _scoreHandler.hitNotif.SetActive(true);
+                // TODO: disappear after a while
             }
             
             
@@ -99,9 +103,9 @@ namespace RhythmGameAssets.Scripts
                     if (KeyboardPressFromDirection(note.Direction))
                     {
                         Debug.Log(songTime - timeToNextNote);
-                        _scoreHandler.NoteHitScoring(note.Position, songTime);
+                        _scoreHandler.NoteHitScoring(songTime - timeToNextNote);
                     }
-                    
+                    // Debug.Log("Miss!");
                     notePool.Release(notePool.GetActiveNoteById(id));
                 }
             }
