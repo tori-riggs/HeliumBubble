@@ -119,6 +119,89 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &143200827
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 143200828}
+  - component: {fileID: 143200829}
+  m_Layer: 0
+  m_Name: ChartParser
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &143200828
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 143200827}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 214727619}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &143200829
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 143200827}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd65943812d904a95a858495ef2eee46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RhythmGameAssets.Scripts.ChartParser
+  songsDir: Assets/RhythmGameAssets/Resources/Songs
+  chartFile: notes.chart
+  chartPath: 
+  audioPath: 
+--- !u!1 &214727618
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 214727619}
+  m_Layer: 0
+  m_Name: Handlers
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &214727619
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 214727618}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -5.81622, y: 0.40279, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1900708974}
+  - {fileID: 923685418}
+  - {fileID: 422211542}
+  - {fileID: 143200828}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &422211540
 GameObject:
   m_ObjectHideFlags: 0
@@ -148,6 +231,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a3c728054fafda40836a1de0406ec7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Networking
+  websocketIP: localhost:8080
 --- !u!4 &422211542
 Transform:
   m_ObjectHideFlags: 0
@@ -156,12 +240,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 422211540}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 5.81622, y: -0.40279, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 214727619}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &762183317
 GameObject:
@@ -173,6 +257,7 @@ GameObject:
   m_Component:
   - component: {fileID: 762183319}
   - component: {fileID: 762183318}
+  - component: {fileID: 762183320}
   m_Layer: 0
   m_Name: rightBase_0
   m_TagString: Untagged
@@ -254,6 +339,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1511111407}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &762183320
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 762183317}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d56fc5b6eec8e040a3d26a5da994541, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RhythmGameAssets.Scripts.HitPopEffect
+  popScale: 1.2
+  popDuration: 0.08
+  flashColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &923685417
 GameObject:
   m_ObjectHideFlags: 0
@@ -279,12 +379,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 923685417}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5.81622, y: 0.40279, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 214727619}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &923685419
 MonoBehaviour:
@@ -298,11 +398,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7fa1d4a3713ffe4cb63fdc9517a8f78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayHandler
+  leftTarget: {fileID: 1199756733}
+  upTarget: {fileID: 2024493122}
+  downTarget: {fileID: 1266448810}
+  rightTarget: {fileID: 762183320}
   metronome: {fileID: 1900708973}
   notePool: {fileID: 1291967997}
   bpm: 121
   delay: 0
   beatSpawnDirection: 2
+  chartParser: {fileID: 143200829}
 --- !u!1 &1199756730
 GameObject:
   m_ObjectHideFlags: 0
@@ -313,6 +418,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1199756732}
   - component: {fileID: 1199756731}
+  - component: {fileID: 1199756733}
   m_Layer: 0
   m_Name: leftBase_0
   m_TagString: Untagged
@@ -394,6 +500,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1511111407}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1199756733
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1199756730}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d56fc5b6eec8e040a3d26a5da994541, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RhythmGameAssets.Scripts.HitPopEffect
+  popScale: 1.2
+  popDuration: 0.08
+  flashColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1266448807
 GameObject:
   m_ObjectHideFlags: 0
@@ -404,6 +525,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1266448809}
   - component: {fileID: 1266448808}
+  - component: {fileID: 1266448810}
   m_Layer: 0
   m_Name: downBase_0
   m_TagString: Untagged
@@ -485,6 +607,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1511111407}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1266448810
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1266448807}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d56fc5b6eec8e040a3d26a5da994541, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RhythmGameAssets.Scripts.HitPopEffect
+  popScale: 1.2
+  popDuration: 0.08
+  flashColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1291967996
 GameObject:
   m_ObjectHideFlags: 0
@@ -742,7 +879,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 8fb3db932d831c8498741c508a77ea3a, type: 3}
+  m_Resource: {fileID: 8300000, guid: d665f3c424b47c84fbc2fa9e3356bdbc, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -850,12 +987,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1900708971}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5.81622, y: 0.40279, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 214727619}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2024493119
 GameObject:
@@ -867,6 +1004,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2024493121}
   - component: {fileID: 2024493120}
+  - component: {fileID: 2024493122}
   m_Layer: 0
   m_Name: upBase_0
   m_TagString: Untagged
@@ -948,13 +1086,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1511111407}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2024493122
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2024493119}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d56fc5b6eec8e040a3d26a5da994541, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RhythmGameAssets.Scripts.HitPopEffect
+  popScale: 1.2
+  popDuration: 0.08
+  flashColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 1850224789}
+  - {fileID: 214727619}
   - {fileID: 1511111407}
   - {fileID: 1291967998}
-  - {fileID: 1900708974}
-  - {fileID: 923685418}
-  - {fileID: 422211542}
