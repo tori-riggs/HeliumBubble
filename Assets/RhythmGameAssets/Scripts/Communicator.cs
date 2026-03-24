@@ -5,154 +5,154 @@ using UnityEngine;
 using NativeWebSocket;
 using System;
 
-public enum Sender
+namespace RhythmGameAssets.Scripts
 {
-    CLIENT,
-    SCOREBOARD,
-    SERVER
-}
-
-public enum PacketType
-{
-    CONNECTION,
-    SCORE,
-}
-
-public class WebPacket
-{
-    public Sender Sender;
-    public PacketType Type;
-    public long TimeSent;
-
-    public WebPacket(Sender sender, PacketType type)
+    public enum Sender
     {
-        Sender = sender;
-        Type = type;
-        TimeSent = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-    }
-}
-
-public enum Instrument
-{
-    BASS,
-    GUITAR,
-    KEYS,
-    VOCALS
-}
-
-public class ConnectionPacket : WebPacket
-{
-    public bool IsConnecting;
-    public Instrument Instrument;
-
-    public ConnectionPacket(bool isConnecting, Instrument instrument) : base(Sender.CLIENT, PacketType.CONNECTION)
-    {
-        IsConnecting = isConnecting;
-        Instrument = instrument;
+        CLIENT,
+        SCOREBOARD,
+        SERVER
     }
 
-    public string ToJSON()
+    public enum PacketType
     {
-        return JsonConvert.SerializeObject(this);
+        CONNECTION,
+        SCORE,
     }
 
-    public static ConnectionPacket FromJSON(String jsonString)
+    public class WebPacket
     {
-        return JsonConvert.DeserializeObject<ConnectionPacket>(jsonString);
-    }
-}
+        public Sender Sender;
+        public PacketType Type;
+        public long TimeSent;
 
-public class ScorePacket : WebPacket
-{
-    public Instrument Instrument;
-    public int Score;
-
-    public ScorePacket(Instrument instrument, int score) : base(Sender.CLIENT, PacketType.SCORE)
-    {
-        Instrument = instrument;
-        Score = score;
-    }
-
-    public string ToJSON()
-    {
-        return JsonConvert.SerializeObject(this);
-    }
-
-    public static ScorePacket FromJSON(String jsonString)
-    {
-        return JsonConvert.DeserializeObject<ScorePacket>(jsonString);
-    }
-}
-
-public class Communicator : MonoBehaviour
-{
-    [SerializeField] string websocketIP = "localhost:8080";
-    private WebSocket _websocket;
-
-    async void Start()
-    {
-        _websocket = new WebSocket("ws://" + websocketIP);
-
-        _websocket.OnOpen += () => {
-            SendConnectionPacket();
-        };
-
-        _websocket.OnClose += (e) => {
-            Debug.Log("Web socket connection closed.");
-        };
-
-        _websocket.OnMessage += (bytes) => {
-            Debug.Log("Message received.");
-            //string message = System.Text.Encoding.Default.GetString(bytes);
-            //Debug.Log(message);
-        };
-
-        await _websocket.Connect();
-    }
-
-    async void SendConnectionPacket()
-    {
-        if (_websocket.State == WebSocketState.Open)
+        public WebPacket(Sender sender, PacketType type)
         {
-            // TODO: Change this later to be selected instrument instead
-            // of bass default
-            ConnectionPacket cPacket = new(true, Instrument.BASS);
-            await _websocket.SendText(cPacket.ToJSON());
+            Sender = sender;
+            Type = type;
+            TimeSent = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         }
     }
 
-    async void SendDisconnectPacket()
+    public enum Instrument
     {
-        if (_websocket.State == WebSocketState.Open)
+        BASS,
+        GUITAR,
+        KEYS,
+        VOCALS
+    }
+
+    public class ConnectionPacket : WebPacket
+    {
+        public bool IsConnecting;
+        public Instrument Instrument;
+
+        public ConnectionPacket(bool isConnecting, Instrument instrument) : base(Sender.CLIENT, PacketType.CONNECTION)
         {
-            // TODO: Change this later to be selected instrument instead
-            // of bass default
-            ConnectionPacket cPacket = new(false, Instrument.BASS);
-            await _websocket.SendText(cPacket.ToJSON());
+            IsConnecting = isConnecting;
+            Instrument = instrument;
+        }
+
+        public string ToJSON()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
+
+        public static ConnectionPacket FromJSON(String jsonString)
+        {
+            return JsonConvert.DeserializeObject<ConnectionPacket>(jsonString);
         }
     }
 
-    public async void SendScorePacket(int score)
+    public class ScorePacket : WebPacket
     {
-        if (_websocket.State == WebSocketState.Open)
+        public Instrument Instrument;
+        public int Score;
+
+        public ScorePacket(Instrument instrument, int score) : base(Sender.CLIENT, PacketType.SCORE)
         {
-            // TODO: Change this later to be selected instrument instead
-            // of bass default
-            ScorePacket sPacket = new(Instrument.BASS, score);
-            await _websocket.SendText(sPacket.ToJSON());
+            Instrument = instrument;
+            Score = score;
+        }
+
+        public string ToJSON()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
+
+        public static ScorePacket FromJSON(String jsonString)
+        {
+            return JsonConvert.DeserializeObject<ScorePacket>(jsonString);
         }
     }
 
-    void Update()
+    public class Communicator : MonoBehaviour
     {
-        #if !UNITY_WEBGL || UNITY_EDITOR
-        _websocket.DispatchMessageQueue();
-        #endif
-    }
+        [SerializeField] string websocketIP = "localhost:8080";
+        private WebSocket _websocket;
 
-    private async void OnApplicationQuit()
-    {
-        SendDisconnectPacket();
-        await _websocket.Close();
+        async void Start()
+        {
+            _websocket = new WebSocket("ws://" + websocketIP);
+
+            _websocket.OnOpen += () => { SendConnectionPacket(); };
+
+            _websocket.OnClose += (e) => { Debug.Log("Web socket connection closed."); };
+
+            _websocket.OnMessage += (bytes) =>
+            {
+                Debug.Log("Message received.");
+                //string message = System.Text.Encoding.Default.GetString(bytes);
+                //Debug.Log(message);
+            };
+
+            await _websocket.Connect();
+        }
+
+        async void SendConnectionPacket()
+        {
+            if (_websocket.State == WebSocketState.Open)
+            {
+                // TODO: Change this later to be selected instrument instead
+                // of bass default
+                ConnectionPacket cPacket = new(true, Instrument.BASS);
+                await _websocket.SendText(cPacket.ToJSON());
+            }
+        }
+
+        async void SendDisconnectPacket()
+        {
+            if (_websocket.State == WebSocketState.Open)
+            {
+                // TODO: Change this later to be selected instrument instead
+                // of bass default
+                ConnectionPacket cPacket = new(false, Instrument.BASS);
+                await _websocket.SendText(cPacket.ToJSON());
+            }
+        }
+
+        public async void SendScorePacket(int score)
+        {
+            if (_websocket.State == WebSocketState.Open)
+            {
+                // TODO: Change this later to be selected instrument instead
+                // of bass default
+                ScorePacket sPacket = new(Instrument.BASS, score);
+                await _websocket.SendText(sPacket.ToJSON());
+            }
+        }
+
+        void Update()
+        {
+#if !UNITY_WEBGL || UNITY_EDITOR
+            _websocket.DispatchMessageQueue();
+#endif
+        }
+
+        private async void OnApplicationQuit()
+        {
+            SendDisconnectPacket();
+            await _websocket.Close();
+        }
     }
 }

@@ -22,7 +22,8 @@ namespace RhythmGameAssets.Scripts
         [SerializeField] private NoteDirection beatSpawnDirection = NoteDirection.Down;
         
         [SerializeField] private ChartParser chartParser;
-
+        [SerializeField] private ScoreHandler _scoreHandler;
+        
         private int _nextNoteIndex;
         Queue<int> activeNoteIds = new Queue<int>();
         
@@ -31,7 +32,6 @@ namespace RhythmGameAssets.Scripts
         private void Start()
         {
             metronome.StartPlayback();
-            
             foreach (ChartNote note in chartParser.Notes)
             {
                 Debug.Log(note);
@@ -73,11 +73,11 @@ namespace RhythmGameAssets.Scripts
                 return;
             }
             
-            // If input is it and there is a note within 150 milliseconds
+            // If input is it and there is a note within 100 milliseconds
             // Check if that key was pressed. If not, wrong key was pressed so missed note
             // If key was pressed, log that hit with the delay
 
-            if (songTime - 150.0 >= GetActiveNoteTime())
+            if (songTime - 100.0 >= GetActiveNoteTime())
             {
                 var id = activeNoteIds.Dequeue();
                 notePool.Release(notePool.GetActiveNoteById(id));
@@ -91,7 +91,7 @@ namespace RhythmGameAssets.Scripts
                  Keyboard.current.dKey.wasPressedThisFrame))
             {
                 var timeToNextNote = GetActiveNoteTime();
-                if (songTime + 150.0 >= timeToNextNote)
+                if (songTime + 100.0 >= timeToNextNote)
                 {
                     var id = activeNoteIds.Dequeue();
                     var note = chartParser.Notes[id];
@@ -99,6 +99,7 @@ namespace RhythmGameAssets.Scripts
                     if (KeyboardPressFromDirection(note.Direction))
                     {
                         Debug.Log(songTime - timeToNextNote);
+                        _scoreHandler.NoteHitScoring(note.Position, songTime);
                     }
                     
                     notePool.Release(notePool.GetActiveNoteById(id));

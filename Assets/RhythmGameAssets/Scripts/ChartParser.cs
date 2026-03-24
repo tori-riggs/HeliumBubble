@@ -201,7 +201,7 @@ namespace RhythmGameAssets.Scripts
             if (Char.Parse(note[2]) == 'N')
             {
                 // TODO error handling
-                int position = int.Parse(note[0]); // tick position of note
+                double position = double.Parse(note[0]); // tick position of note
                 int typeNum = int.Parse(note[3]); // direction of note as int
                 int length = int.Parse(note[4]); // length of note in ticks
                 NoteDirection noteDirection; // corresponding direction of the note
