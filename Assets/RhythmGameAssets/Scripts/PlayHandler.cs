@@ -95,7 +95,7 @@ namespace RhythmGameAssets.Scripts
                  Keyboard.current.dKey.wasPressedThisFrame))
             {
                 var timeToNextNote = GetActiveNoteTime();
-                if (songTime + 100.0 >= timeToNextNote)
+                if (songTime + 150.0 >= timeToNextNote)
                 {
                     var id = activeNoteIds.Dequeue();
                     var note = chartParser.Notes[id];
@@ -105,7 +105,7 @@ namespace RhythmGameAssets.Scripts
                         Debug.Log(songTime - timeToNextNote);
                         _scoreHandler.NoteHitScoring(songTime - timeToNextNote);
                     }
-                    // Debug.Log("Miss!");
+                    
                     notePool.Release(notePool.GetActiveNoteById(id));
                 }
             }
