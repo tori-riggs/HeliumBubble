@@ -153,11 +153,11 @@ RectTransform:
   - {fileID: 202918321}
   - {fileID: 1619117323}
   - {fileID: 1162043233}
-  m_Father: {fileID: 1511111407}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 1285.5874, y: 716.7224}
+  m_AnchoredPosition: {x: 1280, y: 720}
   m_SizeDelta: {x: 2560, y: 1440}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &25366535
@@ -1206,7 +1206,6 @@ Transform:
   - {fileID: 1199756732}
   - {fileID: 2024493121}
   - {fileID: 762183319}
-  - {fileID: 25366534}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1619117322
@@ -1684,8 +1683,8 @@ MonoBehaviour:
   missScore: 0
   communicator: {fileID: 422211541}
   scoreText: {fileID: 1619117324}
-  hitNotifText: {fileID: 0}
-  hitNotif: {fileID: 0}
+  hitNotif: {fileID: 1162043232}
+  hitNotifText: {fileID: 879434649}
 --- !u!1 &2024493119
 GameObject:
   m_ObjectHideFlags: 0
@@ -1800,5 +1799,6 @@ SceneRoots:
   - {fileID: 1850224789}
   - {fileID: 214727619}
   - {fileID: 1511111407}
-  - {fileID: 1291967998}
+  - {fileID: 25366534}
   - {fileID: 839481184}
+  - {fileID: 1291967998}
