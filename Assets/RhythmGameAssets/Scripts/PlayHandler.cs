@@ -81,10 +81,10 @@ namespace RhythmGameAssets.Scripts
             {
                 var id = activeNoteIds.Dequeue();
                 notePool.Release(notePool.GetActiveNoteById(id));
-                Debug.Log("Miss!");
                 _scoreHandler.hitNotifText.text = "Miss!";
                 _scoreHandler.hitNotif.SetActive(true);
                 // TODO: disappear after a while
+                _scoreHandler.NoteMissed();
             }
             
             
@@ -102,10 +102,9 @@ namespace RhythmGameAssets.Scripts
 
                     if (KeyboardPressFromDirection(note.Direction))
                     {
-                        Debug.Log(songTime - timeToNextNote);
                         _scoreHandler.NoteHitScoring(songTime - timeToNextNote);
                     }
-                    
+
                     notePool.Release(notePool.GetActiveNoteById(id));
                 }
             }
