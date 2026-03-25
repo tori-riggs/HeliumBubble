@@ -1,9 +1,7 @@
-using Newtonsoft.Json;
-
-using UnityEngine;
-
 using NativeWebSocket;
+using Newtonsoft.Json;
 using System;
+using UnityEngine;
 
 namespace RhythmGameAssets.Scripts
 {
@@ -18,6 +16,7 @@ namespace RhythmGameAssets.Scripts
     {
         CONNECTION,
         SCORE,
+        SOUND,
     }
 
     public class WebPacket
@@ -37,9 +36,10 @@ namespace RhythmGameAssets.Scripts
     public enum Instrument
     {
         BASS,
+        DRUMS,
         GUITAR,
-        KEYS,
-        VOCALS
+        KEYS1,
+        KEYS2
     }
 
     public class ConnectionPacket : WebPacket
@@ -86,10 +86,33 @@ namespace RhythmGameAssets.Scripts
         }
     }
 
+    public class SoundPacket : WebPacket
+    {
+        public Instrument Instrument;
+        public float RecentNotePercentage; // how well did the player hit the last 10 notes
+
+        public SoundPacket(Instrument instrument, float recentNotePercentage) : base(Sender.CLIENT, PacketType.SOUND)
+        {
+            Instrument = instrument;
+            RecentNotePercentage = recentNotePercentage;
+        }
+
+        public string ToJSON()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
+
+        public static SoundPacket FromJSON(String jsonString)
+        {
+            return JsonConvert.DeserializeObject<SoundPacket>(jsonString);
+        }
+    }
+
     public class Communicator : MonoBehaviour
     {
         [SerializeField] string websocketIP = "localhost:8080";
         private WebSocket _websocket;
+        private Instrument SelectedInstrument = Instrument.DRUMS;
 
         async void Start()
         {
@@ -115,7 +138,7 @@ namespace RhythmGameAssets.Scripts
             {
                 // TODO: Change this later to be selected instrument instead
                 // of bass default
-                ConnectionPacket cPacket = new(true, Instrument.BASS);
+                ConnectionPacket cPacket = new(true, SelectedInstrument);
                 await _websocket.SendText(cPacket.ToJSON());
             }
         }
@@ -126,7 +149,7 @@ namespace RhythmGameAssets.Scripts
             {
                 // TODO: Change this later to be selected instrument instead
                 // of bass default
-                ConnectionPacket cPacket = new(false, Instrument.BASS);
+                ConnectionPacket cPacket = new(false, SelectedInstrument);
                 await _websocket.SendText(cPacket.ToJSON());
             }
         }
@@ -137,16 +160,27 @@ namespace RhythmGameAssets.Scripts
             {
                 // TODO: Change this later to be selected instrument instead
                 // of bass default
-                ScorePacket sPacket = new(Instrument.BASS, score);
+                ScorePacket sPacket = new(SelectedInstrument, score);
+                await _websocket.SendText(sPacket.ToJSON());
+            }
+        }
+
+        public async void SendSoundPacket(float notePercentage)
+        {
+            if (_websocket.State == WebSocketState.Open)
+            {
+                // TODO: Change this later to be selected instrument instead
+                // of bass default
+                SoundPacket sPacket = new(SelectedInstrument, notePercentage);
                 await _websocket.SendText(sPacket.ToJSON());
             }
         }
 
         void Update()
         {
-#if !UNITY_WEBGL || UNITY_EDITOR
-            _websocket.DispatchMessageQueue();
-#endif
+            #if !UNITY_WEBGL || UNITY_EDITOR
+             _websocket.DispatchMessageQueue();
+            #endif
         }
 
         private async void OnApplicationQuit()
