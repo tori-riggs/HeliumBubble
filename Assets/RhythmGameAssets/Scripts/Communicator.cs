@@ -177,8 +177,6 @@ namespace RhythmGameAssets.Scripts
         {
             if (_websocket.State == WebSocketState.Open)
             {
-                // TODO: Change this later to be selected instrument instead
-                // of bass default
                 ConnectionPacket cPacket = new(true, SelectedInstrument);
                 await _websocket.SendText(cPacket.ToJSON());
             }
@@ -188,8 +186,6 @@ namespace RhythmGameAssets.Scripts
         {
             if (_websocket.State == WebSocketState.Open)
             {
-                // TODO: Change this later to be selected instrument instead
-                // of bass default
                 ConnectionPacket cPacket = new(false, SelectedInstrument);
                 await _websocket.SendText(cPacket.ToJSON());
             }
@@ -199,8 +195,6 @@ namespace RhythmGameAssets.Scripts
         {
             if (_websocket.State == WebSocketState.Open)
             {
-                // TODO: Change this later to be selected instrument instead
-                // of bass default
                 ScorePacket sPacket = new(SelectedInstrument, score);
                 await _websocket.SendText(sPacket.ToJSON());
             }
@@ -210,8 +204,6 @@ namespace RhythmGameAssets.Scripts
         {
             if (_websocket.State == WebSocketState.Open)
             {
-                // TODO: Change this later to be selected instrument instead
-                // of bass default
                 SoundPacket sPacket = new(SelectedInstrument, notePercentage);
                 await _websocket.SendText(sPacket.ToJSON());
             }
@@ -221,8 +213,6 @@ namespace RhythmGameAssets.Scripts
         {
             long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             float delayInSeconds = (now - packet.TimeSent) / 1000.0f;
-
-            Debug.Log("Delay in seconds: " + delayInSeconds);
 
             float finalSongTime = packet.SongTime + delayInSeconds;
             float clientTime = (float) _metronome.GetPlaybackTime();

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using TMPro;
 
 namespace RhythmGameAssets.Scripts
 {
@@ -11,11 +12,23 @@ namespace RhythmGameAssets.Scripts
         [Header("Playback")]
         [SerializeField] private double startDelaySeconds = 2.0;
 
+        [SerializeField] private TextMeshProUGUI songTimer;
+
         private double dspStartTime;
         private bool isPlayingScheduled = false;
 
+        private bool IsPaused = false;
+
+        private bool NeedsSync = true;
+
+        public void Update()
+        {
+            float songTime = audioSource.time;
+            songTimer.text = Math.Floor(songTime).ToString();
+        }
+
         // this is in seconds
-        // i.e. 0.02 = 20 ms
+        // i.e. 0.03 = 30 ms
         private readonly float SONG_DIFF_THRESHOLD = 0.02f;
 
         // This part will probably only be for single-player
@@ -33,10 +46,15 @@ namespace RhythmGameAssets.Scripts
 
         private void ForceStartPlayback()
         {
-            audioSource.Stop();
             audioSource.Play();
         }
-
+        
+        private void UnpausePlayback()
+        {
+            audioSource.UnPause();
+            IsPaused = false;
+            NeedsSync = true;
+        }
 
         /// <summary>
         /// Returns the playback time in seconds since the start
@@ -54,13 +72,21 @@ namespace RhythmGameAssets.Scripts
         public void PausePlayback()
         {
             audioSource.Pause();
+            IsPaused = true;
         }
 
         public void AdjustPlaybackTime(bool isPlaying, float clientTime, float serverTime)
         {
             if (isPlaying && !audioSource.isPlaying)
             {
-                ForceStartPlayback();
+                if (IsPaused)
+                {
+                    UnpausePlayback();
+                } 
+                else
+                {
+                    ForceStartPlayback();
+                }
             }
 
             if (!isPlaying && audioSource.isPlaying)
@@ -70,15 +96,21 @@ namespace RhythmGameAssets.Scripts
 
             float delay = Math.Abs(clientTime - serverTime);
 
+            if (!NeedsSync)
+            {
+                return;
+            }
+
+            if (delay < SONG_DIFF_THRESHOLD)
+            {
+                NeedsSync = false;
+            }
+
+            // skip to server time if we are too far ahead/behind
             Debug.Log("Calculated server time: " + serverTime);
             Debug.Log("Client time: " + clientTime);
             Debug.Log("Delay: " + delay);
-
-            // skip to server time if we are too far ahead/behind
-            if (delay > SONG_DIFF_THRESHOLD)
-            {
-                audioSource.time = serverTime;
-            }
+            audioSource.time = serverTime;
         }
     }
 }
