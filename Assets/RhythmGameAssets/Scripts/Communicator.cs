@@ -220,10 +220,13 @@ namespace RhythmGameAssets.Scripts
         void HandleClientSync(SyncPacket packet)
         {
             long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            long delayInSeconds = (now - packet.TimeSent) / 1000;
+            float delayInSeconds = (now - packet.TimeSent) / 1000.0f;
 
-            float finalSongTime = packet.SongTime + (float) delayInSeconds;
-            _metronome.AdjustPlaybackTime(packet.SongIsPlaying, finalSongTime);
+            Debug.Log("Delay in seconds: " + delayInSeconds);
+
+            float finalSongTime = packet.SongTime + delayInSeconds;
+            float clientTime = (float) _metronome.GetPlaybackTime();
+            _metronome.AdjustPlaybackTime(packet.SongIsPlaying, clientTime, finalSongTime);
         }
 
         void Update()

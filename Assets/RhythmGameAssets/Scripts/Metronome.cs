@@ -56,25 +56,28 @@ namespace RhythmGameAssets.Scripts
             audioSource.Pause();
         }
 
-        public void AdjustPlaybackTime(bool isPlaying, float time)
+        public void AdjustPlaybackTime(bool isPlaying, float clientTime, float serverTime)
         {
-            if (isPlaying && !audioSource.IsPlaying)
+            if (isPlaying && !audioSource.isPlaying)
             {
                 ForceStartPlayback();
             }
 
-            if (!isPlaying && audioSource.IsPlaying)
+            if (!isPlaying && audioSource.isPlaying)
             {
                 PausePlayback();
             }
 
-            float currentTime = audioSource.time;
-            float delay = Math.Abs(currentTime - time);
+            float delay = Math.Abs(clientTime - serverTime);
+
+            Debug.Log("Calculated server time: " + serverTime);
+            Debug.Log("Client time: " + clientTime);
+            Debug.Log("Delay: " + delay);
 
             // skip to server time if we are too far ahead/behind
             if (delay > SONG_DIFF_THRESHOLD)
             {
-                audioSource.time = time;
+                audioSource.time = serverTime;
             }
         }
     }
