@@ -3,7 +3,9 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.Android;
 using UnityEngine.Serialization;
 
 namespace RhythmGameAssets.Scripts
@@ -36,18 +38,18 @@ namespace RhythmGameAssets.Scripts
         //     RIGHT // 4
         // }
         // private string[] _noteType = {"LEFT", "UP", "DOWN", "RIGHT"}; 
-        // TODO: Find a way to have a "Resources/Songs/<song-name>/notes.chart" file structure
-        // TODO: Why do we have Assets/RhythmGameAssets?
         // Directory of all songs
         [SerializeField] private string songsDir = @"Assets/RhythmGameAssets/Resources/Songs";
         [SerializeField] private string chartFile = @"notes.chart"; // notes.chart file name
         [SerializeField] private string chartPath;
+        // [SerializeField] public string songList;
+        [SerializeField] public string selectedSong; // Selected song
+        // TODO audio should be stored alongside the files
         [SerializeField] private string audioPath;
 
         public string Difficulty { get; private set; }
         public string Instrument { get; private set; }
-        public float Offset { get; private set; }
-        // <Position> = TS <Numerator> <Denominator exponent> 
+        public float Offset { get; private set; } 
         // Note: might change in the middle of the song!
         public int TimeSignature { get; private set; }
         // <Position> = B <Tempo>
@@ -61,23 +63,25 @@ namespace RhythmGameAssets.Scripts
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Awake()
         {
-            // Get full path of the Songs directory
             // Alternative: ToLower().FirstCharacterToUpper()
             Difficulty = nameof(Difficulties.HARD); // default difficulty
             Instrument = nameof(Instruments.GUITAR1); // default instrument
+            // Get full path of the Songs directory
             songsDir = Path.GetFullPath(songsDir);
-            // TODO: Add a way to get Songs/<song-name>/notes.chart. Probably would just be using the song name or a regex but worry about that later.
+            // Songs/<song_name>/notes.chart
+            // TODO: Support song selection
+            var selectedDir = TestChartParser();
             // Get the file path of the notes.chart file
-            chartPath = Path.Join(songsDir, chartFile);
+            chartPath = Path.Join(selectedDir, chartFile);
             // /Users/nyla/Github Projects/HeliumBubbleRhythmGame/Assets/RythmnGameAssets/Resources/Songs/notes.chart
             if (File.Exists(chartPath))
             {
-                // TODO remove if unnecessary
                 Console.WriteLine("success");
             }
             else {
                 Console.WriteLine("Specified file does not "+
                                   "exist in the current directory.");
+                // TODO throw error
             }
 
             try
@@ -89,7 +93,6 @@ namespace RhythmGameAssets.Scripts
                 {
                     // byte[] b = new byte[1024];
                     // UTF8Encoding temp = new UTF8Encoding(true);
-                    // int readLen;
                     // while ((readLen = fs.Read(b, 0, b.Length)) > 0) 
                     string line;
                     while ((line = reader.ReadLine()) != null)
@@ -241,6 +244,13 @@ namespace RhythmGameAssets.Scripts
                     }
                 }
             }
+        }
+        public string TestChartParser()
+        {
+            selectedSong = "Mirage";
+            var selectedDir = Path.Join(songsDir, selectedSong);
+            // var fullPath = Path.Join(selectedDir, chartFile);
+            return selectedDir;
         }
     }
 }
