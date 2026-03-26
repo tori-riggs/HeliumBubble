@@ -111,8 +111,8 @@ namespace RhythmGameAssets.Scripts
     public class Communicator : MonoBehaviour
     {
         [SerializeField] string websocketIP = "localhost:8080";
+        [SerializeField] Instrument SelectedInstrument = Instrument.BASS;
         private WebSocket _websocket;
-        private Instrument SelectedInstrument = Instrument.DRUMS;
 
         async void Start()
         {
