@@ -19,7 +19,9 @@ namespace RhythmGameAssets.Scripts
 
         private bool IsPaused = false;
 
-        private bool NeedsSync = true;
+        private bool _NeedsSync = true;
+        private int _NumSyncTries = 0;
+        private readonly int MAX_SYNC_TRIES = 20;
 
         public void Update()
         {
@@ -28,8 +30,8 @@ namespace RhythmGameAssets.Scripts
         }
 
         // this is in seconds
-        // i.e. 0.03 = 30 ms
-        private readonly float SONG_DIFF_THRESHOLD = 0.02f;
+        // i.e. 0.01 = 10 ms
+        private readonly float SONG_DIFF_THRESHOLD = 0.01f;
 
         // This part will probably only be for single-player
         /// <summary>
@@ -53,7 +55,7 @@ namespace RhythmGameAssets.Scripts
         {
             audioSource.UnPause();
             IsPaused = false;
-            NeedsSync = true;
+            _NeedsSync = true;
         }
 
         /// <summary>
@@ -96,21 +98,20 @@ namespace RhythmGameAssets.Scripts
 
             float delay = Math.Abs(clientTime - serverTime);
 
-            if (!NeedsSync)
+            if (!_NeedsSync && _NumSyncTries >= MAX_SYNC_TRIES)
             {
                 return;
             }
 
-            if (delay < SONG_DIFF_THRESHOLD)
-            {
-                NeedsSync = false;
-            }
+            _NeedsSync = delay > SONG_DIFF_THRESHOLD;
 
             // skip to server time if we are too far ahead/behind
             Debug.Log("Calculated server time: " + serverTime);
             Debug.Log("Client time: " + clientTime);
             Debug.Log("Delay: " + delay);
             audioSource.time = serverTime;
+
+            _NumSyncTries++;
         }
     }
 }

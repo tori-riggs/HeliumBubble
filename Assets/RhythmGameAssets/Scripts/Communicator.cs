@@ -149,6 +149,7 @@ namespace RhythmGameAssets.Scripts
         [SerializeField] Instrument SelectedInstrument = Instrument.BASS;
 
         private WebSocket _websocket;
+        private long _serverTimeOffset = 0;
 
         async void Start()
         {
@@ -212,10 +213,13 @@ namespace RhythmGameAssets.Scripts
         void HandleClientSync(SyncPacket packet)
         {
             long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            float delayInSeconds = (now - packet.TimeSent) / 1000.0f;
+            _serverTimeOffset = packet.TimeSent - now;
+
+            float delayInSeconds = (now + _serverTimeOffset - packet.TimeSent) / 1000.0f;
 
             float finalSongTime = packet.SongTime + delayInSeconds;
             float clientTime = (float) _metronome.GetPlaybackTime();
+
             _metronome.AdjustPlaybackTime(packet.SongIsPlaying, clientTime, finalSongTime);
         }
 
