@@ -17,6 +17,7 @@ namespace RhythmGameAssets.Scripts
         CONNECTION,
         SCORE,
         SOUND,
+        SYNC,
     }
 
     public class WebPacket
@@ -30,6 +31,16 @@ namespace RhythmGameAssets.Scripts
             Sender = sender;
             Type = type;
             TimeSent = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        }
+
+        public string ToJSON()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
+
+        public static WebPacket FromJSON(String jsonString)
+        {
+            return JsonConvert.DeserializeObject<WebPacket>(jsonString);
         }
     }
 
@@ -53,12 +64,12 @@ namespace RhythmGameAssets.Scripts
             Instrument = instrument;
         }
 
-        public string ToJSON()
+        public new string ToJSON()
         {
             return JsonConvert.SerializeObject(this);
         }
 
-        public static ConnectionPacket FromJSON(String jsonString)
+        public new static ConnectionPacket FromJSON(String jsonString)
         {
             return JsonConvert.DeserializeObject<ConnectionPacket>(jsonString);
         }
@@ -75,12 +86,12 @@ namespace RhythmGameAssets.Scripts
             Score = score;
         }
 
-        public string ToJSON()
+        public new string ToJSON()
         {
             return JsonConvert.SerializeObject(this);
         }
 
-        public static ScorePacket FromJSON(String jsonString)
+        public new static ScorePacket FromJSON(String jsonString)
         {
             return JsonConvert.DeserializeObject<ScorePacket>(jsonString);
         }
@@ -97,21 +108,46 @@ namespace RhythmGameAssets.Scripts
             RecentNotePercentage = recentNotePercentage;
         }
 
-        public string ToJSON()
+        public new string ToJSON()
         {
             return JsonConvert.SerializeObject(this);
         }
 
-        public static SoundPacket FromJSON(String jsonString)
+        public new static SoundPacket FromJSON(String jsonString)
         {
             return JsonConvert.DeserializeObject<SoundPacket>(jsonString);
         }
     }
 
+    public class SyncPacket : WebPacket
+    {
+        public bool SongIsPlaying;
+        public float SongTime;
+
+        public SyncPacket(bool songIsPlaying, float songTime) : base(Sender.CLIENT, PacketType.SYNC)
+        {
+            SongIsPlaying = songIsPlaying;
+            SongTime = songTime;
+        }
+
+        public new string ToJSON()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
+
+        public new static SyncPacket FromJSON(String jsonString)
+        {
+            return JsonConvert.DeserializeObject<SyncPacket>(jsonString);
+        }
+    }
+
     public class Communicator : MonoBehaviour
     {
+        [SerializeField] Metronome _metronome;
+
         [SerializeField] string websocketIP = "localhost:8080";
         [SerializeField] Instrument SelectedInstrument = Instrument.BASS;
+
         private WebSocket _websocket;
 
         async void Start()
@@ -124,9 +160,14 @@ namespace RhythmGameAssets.Scripts
 
             _websocket.OnMessage += (bytes) =>
             {
-                Debug.Log("Message received.");
-                //string message = System.Text.Encoding.Default.GetString(bytes);
-                //Debug.Log(message);
+                string packetJSON = System.Text.Encoding.Default.GetString(bytes);
+                WebPacket basePacket = WebPacket.FromJSON(packetJSON);
+
+                if (basePacket.Type == PacketType.SYNC)
+                {
+                    SyncPacket sPacket = SyncPacket.FromJSON(packetJSON);
+                    HandleClientSync(sPacket);
+                }
             };
 
             await _websocket.Connect();
@@ -174,6 +215,15 @@ namespace RhythmGameAssets.Scripts
                 SoundPacket sPacket = new(SelectedInstrument, notePercentage);
                 await _websocket.SendText(sPacket.ToJSON());
             }
+        }
+
+        void HandleClientSync(SyncPacket packet)
+        {
+            long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            long delayInSeconds = (now - packet.TimeSent) / 1000;
+
+            float finalSongTime = packet.SongTime + (float) delayInSeconds;
+            _metronome.AdjustPlaybackTime(packet.SongIsPlaying, finalSongTime);
         }
 
         void Update()
