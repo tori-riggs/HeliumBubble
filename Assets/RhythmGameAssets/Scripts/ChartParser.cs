@@ -54,7 +54,7 @@ namespace RhythmGameAssets.Scripts
         public int TimeSignature { get; private set; }
         // <Position> = B <Tempo>
         public float BPM { get; private set; } // tempo
-        private int noteCount = 0;
+        private int _noteCount = 0;
         public List<ChartNote> Notes = new();
 
         // String: Section, Array: [start, end]
@@ -89,6 +89,7 @@ namespace RhythmGameAssets.Scripts
                 // using (FileStream fs = File.OpenRead(chartPath))
                 Boolean parsingMode = false;
                 Boolean syncTrackMode = false;
+                Chart chart = new Chart(selectedSong);
                 using (StreamReader reader = new StreamReader(chartPath))
                 {
                     // byte[] b = new byte[1024];
@@ -109,14 +110,14 @@ namespace RhythmGameAssets.Scripts
                         {
                             line = line.Trim();
                             string[] lineSplit = line.Split(' ');
-                            ParseSyncTrack(lineSplit); // get Time Signature
+                            ParseSyncTrack(lineSplit, chart); // get Time Signature
                             line = reader.ReadLine(); // read next line
                             if (line == null)
                             {
                                 throw new IOException("Time Signature or BPM expected.");
                             }
                             lineSplit = line.Trim().Split(' ');
-                            ParseSyncTrack(lineSplit); // get BPM
+                            ParseSyncTrack(lineSplit, chart); // get BPM
                             if ((line = reader.ReadLine()) != null 
                                     && line.StartsWith("}"))
                                 syncTrackMode = false; // turn off SyncTrack parsing
@@ -156,6 +157,8 @@ namespace RhythmGameAssets.Scripts
                         }
                     }
                 }
+
+                Console.WriteLine("Finished parsing");
             }
             catch (IOException e)
             {
@@ -176,7 +179,7 @@ namespace RhythmGameAssets.Scripts
         /// Global variables are changed so no need for return
         /// </summary>
         /// <param name="line"></param>
-        private void ParseSyncTrack(string[] line)
+        private void ParseSyncTrack(string[] line, Chart chart)
         {
             // TimeSignature = 4; // default
             switch (line[2])
@@ -188,11 +191,13 @@ namespace RhythmGameAssets.Scripts
                     TimeSignature = int.Parse(line[3]);
                     // x/4 is assumed
                     // TODO figure out if optional denom exponent is needed
+                    chart.TimeSignature = TimeSignature;
                     break;
                 case "B":
                     // <Position> = B <Tempo>
                     // Position of 0 is assumed
                     BPM = float.Parse(line[3]) / 1000;
+                    chart.BPM = BPM;
                     break;
             }
         }
@@ -235,7 +240,7 @@ namespace RhythmGameAssets.Scripts
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
-                    ChartNote chartNote = new ChartNote(noteCount++, noteDirection, position, length);
+                    ChartNote chartNote = new ChartNote(_noteCount++, noteDirection, position, length);
                     Notes.Add(chartNote);
                     if (Notes.Count > 1)
                     {
