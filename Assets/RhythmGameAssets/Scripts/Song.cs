@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace RhythmGameAssets.Scripts
@@ -5,6 +6,7 @@ namespace RhythmGameAssets.Scripts
     public class Song
     {
         public string Name { get; set; }
+
         // Dictionary of all song charts
         // Key: Difficulty, Value: List of charts
         private Dictionary<string, List<Chart>> _charts = new();
@@ -17,7 +19,7 @@ namespace RhythmGameAssets.Scripts
         /// <summary>
         /// Add a chart to the Song class
         /// </summary>
-        /// <param name="difficulty"></param> Difficulty of the chart
+        /// <param name="difficulty"> Difficulty of the Chart</param>
         /// <param name="chart"> Chart file to add</param>
         public void AddChart(string difficulty, Chart chart)
         {
@@ -32,6 +34,19 @@ namespace RhythmGameAssets.Scripts
                 _charts[difficulty].Add(chart); // add chart to list
             }
         }
-        
+
+        public Chart GetChart(string difficulty, string instrument)
+        {
+            {
+                var chart = _charts[difficulty];
+                foreach (var c in chart)
+                {
+                    if (c.Instrument == instrument)
+                        return c;
+                }
+                // TODO exception handling
+                return null;
+            }
+        }
     }
 }
