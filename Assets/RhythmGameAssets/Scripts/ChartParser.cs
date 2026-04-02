@@ -17,6 +17,8 @@ namespace RhythmGameAssets.Scripts
             BASS,
             PIANO,
             DRUMS,
+            KEYS1,
+            KEYS2,
             VOCALS,
             SINGLE // parsing purposes
         }
