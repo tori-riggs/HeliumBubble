@@ -26,7 +26,7 @@ namespace RhythmGameAssets.Scripts
         public void Update()
         {
             float songTime = audioSource.time;
-            songTimer.text = Math.Floor(songTime).ToString();
+            songTimer.text = (Math.Truncate(songTime * 1000) / 1000).ToString();
         }
 
         // this is in seconds
