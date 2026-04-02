@@ -368,7 +368,7 @@ GameObject:
   - component: {fileID: 1303663049}
   - component: {fileID: 1303663048}
   m_Layer: 0
-  m_Name: SelectedSettings
+  m_Name: MainMenu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -386,6 +386,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9181ae46be38c4e30a36ccf0901a0d27, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  songsDir: Assets/RhythmGameAssets/Resources/Songs
 --- !u!4 &1303663049
 Transform:
   m_ObjectHideFlags: 0

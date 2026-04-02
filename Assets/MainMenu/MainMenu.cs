@@ -5,7 +5,7 @@ using System.IO;
 
 namespace MainMenu
 {
-    public class SelectedSettings : MonoBehaviour
+    public class MainMenu : MonoBehaviour
     {
         public string Instrument { get; set; }
         public string Difficulty { get; set; }
