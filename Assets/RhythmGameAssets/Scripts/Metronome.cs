@@ -15,6 +15,8 @@ namespace RhythmGameAssets.Scripts
         [SerializeField] private TextMeshProUGUI songTimer;
 
         private double dspStartTime;
+        private double dspPauseStartTime;
+        private double totalPausedTime = 0.0;
         private bool isPlayingScheduled = false;
 
         private bool IsPaused = false;
@@ -25,8 +27,8 @@ namespace RhythmGameAssets.Scripts
 
         public void Update()
         {
-            float songTime = audioSource.time;
-            songTimer.text = Math.Floor(songTime).ToString();
+            double songTime = GetPlaybackTime();
+            songTimer.text = songTime.ToString("0.000");
         }
 
         // this is in seconds
@@ -46,35 +48,34 @@ namespace RhythmGameAssets.Scripts
             isPlayingScheduled = true;
         }
 
-        private void ForceStartPlayback()
-        {
-            audioSource.Play();
-        }
-        
-        private void UnpausePlayback()
-        {
-            audioSource.UnPause();
-            IsPaused = false;
-            _NeedsSync = true;
-        }
-
         /// <summary>
         /// Returns the playback time in seconds since the start
         /// </summary>
         public double GetPlaybackTime()
         {
-            //if (!isPlayingScheduled)
-            //    return 0.0;
+            if (!isPlayingScheduled) return 0.0;
+            if (IsPaused) return audioSource.time;
 
-            //double currentTime = AudioSettings.dspTime - dspStartTime;
-            //return Mathf.Max(0f, (float)currentTime);
-            return audioSource.time;
+            double currentTime = AudioSettings.dspTime - dspStartTime - totalPausedTime;
+            return Mathf.Max(0f, (float) currentTime);
         }
 
         public void PausePlayback()
         {
+            dspPauseStartTime = AudioSettings.dspTime;
+
             audioSource.Pause();
             IsPaused = true;
+        }
+
+        private void UnpausePlayback()
+        {
+            double timePaused = AudioSettings.dspTime - dspPauseStartTime;
+            totalPausedTime += timePaused;
+
+            audioSource.UnPause();
+            IsPaused = false;
+            _NeedsSync = true;
         }
 
         public void AdjustPlaybackTime(bool isPlaying, float clientTime, float serverTime)
@@ -87,7 +88,7 @@ namespace RhythmGameAssets.Scripts
                 } 
                 else
                 {
-                    ForceStartPlayback();
+                    StartPlayback();
                 }
             }
 
