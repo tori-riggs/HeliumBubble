@@ -78,7 +78,7 @@ namespace RhythmGameAssets.Scripts
             _NeedsSync = true;
         }
 
-        public void AdjustPlaybackTime(bool isPlaying, float clientTime, float serverTime)
+        public void AdjustPlaybackTime(bool isPlaying, float serverTime)
         {
             if (isPlaying && !audioSource.isPlaying)
             {
@@ -97,12 +97,13 @@ namespace RhythmGameAssets.Scripts
                 PausePlayback();
             }
 
-            float delay = Math.Abs(clientTime - serverTime);
-
             if (!_NeedsSync && _NumSyncTries >= MAX_SYNC_TRIES)
             {
                 return;
             }
+
+            double clientTime = GetPlaybackTime();
+            double delay = Math.Abs(clientTime - serverTime);
 
             _NeedsSync = delay > SONG_DIFF_THRESHOLD;
 

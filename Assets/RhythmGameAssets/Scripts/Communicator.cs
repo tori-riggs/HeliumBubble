@@ -18,6 +18,7 @@ namespace RhythmGameAssets.Scripts
         SCORE,
         SOUND,
         SYNC,
+        PING
     }
 
     public class WebPacket
@@ -141,19 +142,42 @@ namespace RhythmGameAssets.Scripts
         }
     }
 
+    public class PingPacket : WebPacket
+    {
+        public long TimeReceived;
+        public Instrument Instrument;
+
+        public PingPacket(long timeReceived, Instrument instrument) : base(Sender.CLIENT, PacketType.PING)
+        {
+            TimeReceived = timeReceived;
+            Instrument = instrument;
+        }
+
+        public new string ToJSON()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
+
+        public new static PingPacket FromJSON(String jsonString)
+        {
+            return JsonConvert.DeserializeObject<PingPacket>(jsonString);
+        }
+    }
+
     public class Communicator : MonoBehaviour
     {
         [SerializeField] Metronome _metronome;
 
-        [SerializeField] string websocketIP = "localhost:8080";
+        [SerializeField] string WebsocketIP = "localhost:8080";
         [SerializeField] Instrument SelectedInstrument = Instrument.BASS;
 
         private WebSocket _websocket;
-        private long _serverTimeOffset = 0;
+        private long _lastPingSent = -1;
+        private long _latency = 0;
 
         async void Start()
         {
-            _websocket = new WebSocket("ws://" + websocketIP);
+            _websocket = new WebSocket("ws://" + WebsocketIP);
 
             _websocket.OnOpen += () => { SendConnectionPacket(); };
 
@@ -164,12 +188,20 @@ namespace RhythmGameAssets.Scripts
                 string packetJSON = System.Text.Encoding.Default.GetString(bytes);
                 WebPacket basePacket = WebPacket.FromJSON(packetJSON);
 
-                if (basePacket.Type == PacketType.SYNC)
+                switch (basePacket.Type)
                 {
-                    SyncPacket sPacket = SyncPacket.FromJSON(packetJSON);
-                    HandleClientSync(sPacket);
+                    case PacketType.SYNC:
+                        SyncPacket sPacket = SyncPacket.FromJSON(packetJSON);
+                        HandleClientSync(sPacket);
+                        break;
+                    case PacketType.PING:
+                        PingPacket pPacket = PingPacket.FromJSON(packetJSON);
+                        CalculateServerLatency(pPacket);
+                        break;
                 }
             };
+
+            InvokeRepeating("SendPingPacket", 5, 2);
 
             await _websocket.Connect();
         }
@@ -192,6 +224,22 @@ namespace RhythmGameAssets.Scripts
             }
         }
 
+        async void SendPingPacket()
+        {
+            PingPacket pingPacket = new(-1, SelectedInstrument);
+            _lastPingSent = pingPacket.TimeSent;
+            await _websocket.SendText(pingPacket.ToJSON());
+
+        }
+
+        void CalculateServerLatency(PingPacket packet)
+        {
+            long received = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+            _latency = ((packet.TimeReceived - _lastPingSent) + (packet.TimeSent - received)) / 2;
+            Debug.Log("LATENCY: " +  _latency);
+        }
+
         public async void SendScorePacket(int score)
         {
             if (_websocket.State == WebSocketState.Open)
@@ -212,15 +260,12 @@ namespace RhythmGameAssets.Scripts
 
         void HandleClientSync(SyncPacket packet)
         {
-            long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            _serverTimeOffset = packet.TimeSent - now;
+            //float delayInSeconds = (now + _serverTimeOffset - packet.TimeSent) / 1000.0f;
 
-            float delayInSeconds = (now + _serverTimeOffset - packet.TimeSent) / 1000.0f;
+            //float finalSongTime = packet.SongTime + delayInSeconds;
+            //float clientTime = (float) _metronome.GetPlaybackTime();
 
-            float finalSongTime = packet.SongTime + delayInSeconds;
-            float clientTime = (float) _metronome.GetPlaybackTime();
-
-            _metronome.AdjustPlaybackTime(packet.SongIsPlaying, clientTime, finalSongTime);
+            _metronome.AdjustPlaybackTime(packet.SongIsPlaying, packet.SongTime + _latency / 1000f);
         }
 
         void Update()
