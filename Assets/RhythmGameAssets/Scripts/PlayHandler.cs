@@ -32,7 +32,6 @@ namespace RhythmGameAssets.Scripts
 
         private void Start()
         {
-            metronome.StartPlayback();
             // _song = chartParser.CurrentSong;
             _chart = chartParser.CurrentChart;
             foreach (ChartNote note in _chart.Notes)
