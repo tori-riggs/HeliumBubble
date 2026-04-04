@@ -26,12 +26,15 @@ namespace RhythmGameAssets.Scripts
         
         private int _nextNoteIndex;
         Queue<int> activeNoteIds = new Queue<int>();
+        private Chart _chart; // current chart
         
         private double DelaySeconds => delay / 1000.0;
 
         private void Start()
         {
-            foreach (ChartNote note in chartParser.Notes)
+            // _song = chartParser.CurrentSong;
+            _chart = chartParser.CurrentChart;
+            foreach (ChartNote note in _chart.Notes)
             {
                 Debug.Log(note);
             }
@@ -44,7 +47,7 @@ namespace RhythmGameAssets.Scripts
             while (songTime + (notePool.timeOnScreen * 1000.0) >= GetNoteTime(_nextNoteIndex))
             {
                 activeNoteIds.Enqueue(_nextNoteIndex);
-                notePool.SpawnNote(_nextNoteIndex, chartParser.Notes[_nextNoteIndex++].Direction);
+                notePool.SpawnNote(_nextNoteIndex, _chart.Notes[_nextNoteIndex++].Direction);
             }
             
             if (Keyboard.current.aKey.wasPressedThisFrame)
@@ -97,7 +100,7 @@ namespace RhythmGameAssets.Scripts
                 if (songTime + 150.0 >= timeToNextNote)
                 {
                     var id = activeNoteIds.Dequeue();
-                    var note = chartParser.Notes[id];
+                    var note = _chart.Notes[id];
 
                     if (KeyboardPressFromDirection(note.Direction))
                     {
@@ -112,12 +115,12 @@ namespace RhythmGameAssets.Scripts
 
         private double GetNoteTime(int noteIndex)
         {
-            return chartParser.Notes[noteIndex].Position * 60000.0 / (chartParser.BPM * 192);
+            return _chart.Notes[noteIndex].Position * 60000.0 / (_chart.BPM * 192);
         }
         
         private double GetActiveNoteTime()
         {
-            return chartParser.Notes[activeNoteIds.Peek()].Position * 60000.0 / (chartParser.BPM * 192);
+            return _chart.Notes[activeNoteIds.Peek()].Position * 60000.0 / (_chart.BPM * 192);
         }
 
         private bool KeyboardPressFromDirection(NoteDirection direction)
