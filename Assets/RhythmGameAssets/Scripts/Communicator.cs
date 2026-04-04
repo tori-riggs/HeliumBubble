@@ -173,7 +173,11 @@ namespace RhythmGameAssets.Scripts
 
         private WebSocket _websocket;
         private long _lastPingSent = -1;
-        private long _latency = 0;
+
+        private float _avgLatency = 0f;
+        private float _totalLatency = 0f;
+        private int _numPings = 0;
+        private readonly int PINGS_TO_AVERAGE = 10;
 
         async void Start()
         {
@@ -201,7 +205,7 @@ namespace RhythmGameAssets.Scripts
                 }
             };
 
-            InvokeRepeating("SendPingPacket", 5, 2);
+            InvokeRepeating("SendPingPacket", 1, 0.5f);
 
             await _websocket.Connect();
         }
@@ -234,10 +238,21 @@ namespace RhythmGameAssets.Scripts
 
         void CalculateServerLatency(PingPacket packet)
         {
+            _numPings += 1;
+
             long received = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
-            _latency = ((packet.TimeReceived - _lastPingSent) + (packet.TimeSent - received)) / 2;
-            Debug.Log("LATENCY: " +  _latency);
+            _totalLatency += (received - _lastPingSent) / 2;
+
+            if (_numPings % PINGS_TO_AVERAGE == 0)
+            {
+                _avgLatency = _totalLatency / PINGS_TO_AVERAGE;
+
+                //Debug.Log("AVERAGE: " + _avgLatency);
+
+                _totalLatency = 0f;
+                _numPings = 0;
+            }            
         }
 
         public async void SendScorePacket(int score)
@@ -259,13 +274,8 @@ namespace RhythmGameAssets.Scripts
         }
 
         void HandleClientSync(SyncPacket packet)
-        {
-            //float delayInSeconds = (now + _serverTimeOffset - packet.TimeSent) / 1000.0f;
-
-            //float finalSongTime = packet.SongTime + delayInSeconds;
-            //float clientTime = (float) _metronome.GetPlaybackTime();
-
-            _metronome.AdjustPlaybackTime(packet.SongIsPlaying, packet.SongTime + _latency / 1000f);
+        { 
+            _metronome.AdjustPlaybackTime(packet.SongIsPlaying, packet.SongTime + _avgLatency / 1000f);
         }
 
         void Update()

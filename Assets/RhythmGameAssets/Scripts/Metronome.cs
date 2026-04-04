@@ -108,9 +108,9 @@ namespace RhythmGameAssets.Scripts
             _NeedsSync = delay > SONG_DIFF_THRESHOLD;
 
             // skip to server time if we are too far ahead/behind
-            Debug.Log("Calculated server time: " + serverTime);
-            Debug.Log("Client time: " + clientTime);
-            Debug.Log("Delay: " + delay);
+            //Debug.Log("Calculated server time: " + serverTime);
+            //Debug.Log("Client time: " + clientTime);
+            //Debug.Log("Delay: " + delay);
             audioSource.time = serverTime;
 
             _NumSyncTries++;
