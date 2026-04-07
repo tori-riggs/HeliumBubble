@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MainMenu;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -22,6 +23,7 @@ namespace RhythmGameAssets.Scripts
         [SerializeField] private NoteDirection beatSpawnDirection = NoteDirection.Down;
         
         [SerializeField] private ChartParser chartParser;
+        [SerializeField] private SavedSettings savedSettings;
         [SerializeField] private ScoreHandler _scoreHandler;
         
         private int _nextNoteIndex;
@@ -34,7 +36,10 @@ namespace RhythmGameAssets.Scripts
         {
             metronome.StartPlayback();
             // _song = chartParser.CurrentSong;
-            _chart = chartParser.CurrentChart;
+            // _chart = chartParser.CurrentChart;
+            var difficulty = savedSettings.Difficulty;
+            var instrument = savedSettings.Instrument;
+            _chart = savedSettings.SelectedSong.GetChart(difficulty, instrument);
             foreach (ChartNote note in _chart.Notes)
             {
                 Debug.Log(note);

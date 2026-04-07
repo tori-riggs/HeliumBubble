@@ -8,8 +8,10 @@ namespace MainMenu
     [CreateAssetMenu(fileName = "SavedSettings", menuName = "Scriptable Objects/SavedSettings")]
     public class SavedSettings : ScriptableObject
     {
-        public string Instrument { get; set; }
         public string Difficulty { get; set; }
+        public string Instrument { get; set; }
         public Song SelectedSong { get; set; }
+        public Chart SelectedChart { get; set; }
     }
+    
 }

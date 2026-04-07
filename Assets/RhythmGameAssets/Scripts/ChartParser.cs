@@ -18,6 +18,8 @@ namespace RhythmGameAssets.Scripts
             GUITAR1,
             GUITAR2,
             BASS,
+            DOUBLEBASS,
+            KEYBOARD,
             PIANO,
             DRUMS,
             VOCALS,
@@ -87,7 +89,6 @@ namespace RhythmGameAssets.Scripts
             Chart chart = new Chart(selectedSongName);
             try
             {
-                // using (FileStream fs = File.OpenRead(chartPath))
                 Boolean parsingMode = false;
                 Boolean syncTrackMode = false;
                 using (StreamReader reader = new StreamReader(chartPath))
@@ -95,13 +96,20 @@ namespace RhythmGameAssets.Scripts
                     string line;
                     while ((line = reader.ReadLine()) != null)
                     {
-                        if (line.StartsWith("{") || line.StartsWith("}"))
+                        if (line.StartsWith("{") || 
+                            (line.StartsWith("}") && !parsingMode))
                         {
                             continue;
                         }
 
                         if (parsingMode) // parse chart notes
                         {
+                            if (line.Trim().StartsWith("}"))
+                            {
+                                CurrentChart = chart;
+                                AddChartSong(CurrentSong, CurrentChart); // add chart to song's chart dictionary
+                                parsingMode = false;
+                            }
                             ParseNotes(line.Trim(), chart);
                         }
                         else if (line.Trim().StartsWith("Off"))
@@ -136,7 +144,7 @@ namespace RhythmGameAssets.Scripts
                                 // Defaults to 2 (x/4) if unspecified
                                 syncTrackMode = true;
                             }
-                            else
+                            else // Charting part
                             {
                                 // Code to remove the empty entries by CBinet:
                                 // https://stackoverflow.com/a/44868165/16776633

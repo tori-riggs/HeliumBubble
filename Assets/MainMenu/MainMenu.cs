@@ -108,6 +108,9 @@ namespace MainMenu
         private void DefaultSelection()
         {
             SavedSettings.SelectedSong = SongList["Mirage"];
+            SavedSettings.Difficulty = "Hard";
+            SavedSettings.Difficulty = "Expert";
+            // SavedSettings.SelectedChart = SongList["Mirage"];
         }
     }
 }
