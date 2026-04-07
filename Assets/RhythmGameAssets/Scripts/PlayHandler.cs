@@ -36,10 +36,7 @@ namespace RhythmGameAssets.Scripts
         {
             metronome.StartPlayback();
             // _song = chartParser.CurrentSong;
-            // _chart = chartParser.CurrentChart;
-            var difficulty = savedSettings.Difficulty;
-            var instrument = savedSettings.Instrument;
-            _chart = savedSettings.SelectedSong.GetChart(difficulty, instrument);
+            _chart = savedSettings.SelectedChart;
             foreach (ChartNote note in _chart.Notes)
             {
                 Debug.Log(note);

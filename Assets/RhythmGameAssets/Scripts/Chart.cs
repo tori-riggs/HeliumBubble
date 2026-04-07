@@ -6,8 +6,8 @@ namespace RhythmGameAssets.Scripts
     {
         public string SongName { get; private set; }
         // Array with instrument and difficulty?
-        public string Difficulty { get; set; }
-        public string Instrument { get; set; }
+        public string Difficulty { get; set; } // uppercase
+        public string Instrument { get; set; } // uppercase
         public float Offset { get; set; }
         public int TimeSignature { get; set; }
         // <Position> = B <Tempo>

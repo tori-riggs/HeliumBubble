@@ -45,10 +45,10 @@ namespace RhythmGameAssets.Scripts
         public Chart GetChart(string difficulty, string instrument)
         {
             {
-                var chart = _charts[difficulty];
+                var chart = _charts[difficulty.ToUpper()];
                 foreach (var c in chart)
                 {
-                    if (c.Instrument == instrument)
+                    if (c.Instrument == instrument.ToUpper())
                         return c;
                 }
                 // TODO exception handling

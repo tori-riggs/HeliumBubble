@@ -105,12 +105,18 @@ namespace MainMenu
             return songInfo;
         }
         
+        /// <summary>
+        /// Default selection for debugging purposes.
+        /// </summary>
         private void DefaultSelection()
         {
-            SavedSettings.SelectedSong = SongList["Mirage"];
-            SavedSettings.Difficulty = "Hard";
-            SavedSettings.Difficulty = "Expert";
-            // SavedSettings.SelectedChart = SongList["Mirage"];
+            var selectedSong = SongList["Mirage"];
+            var difficulty = "HARD";
+            var instrument = "SINGLE";
+            SavedSettings.SelectedSong = selectedSong;
+            SavedSettings.Difficulty = difficulty;
+            SavedSettings.Instrument = instrument;
+            SavedSettings.SelectedChart = selectedSong.GetChart(difficulty, instrument);
         }
     }
 }

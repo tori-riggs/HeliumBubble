@@ -18,10 +18,11 @@ namespace RhythmGameAssets.Scripts
             GUITAR1,
             GUITAR2,
             BASS,
-            DOUBLEBASS,
-            KEYBOARD,
             PIANO,
             DRUMS,
+            KEYS1,
+            KEYS2,
+            KEYBOARD,
             VOCALS,
             SINGLE // parsing purposes
         }
@@ -60,10 +61,6 @@ namespace RhythmGameAssets.Scripts
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Awake()
         {
-            // Alternative: ToLower().FirstCharacterToUpper()
-            // Difficulty = nameof(Difficulties.HARD); // default difficulty
-            // Instrument = nameof(Instruments.GUITAR1); // default instrument
-
             // Get full path of the Songs directory
             var selectedSong = _mainMenu.SongList[selectedSongName];
 
