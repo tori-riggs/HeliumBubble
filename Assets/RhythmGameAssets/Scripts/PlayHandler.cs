@@ -26,6 +26,12 @@ namespace RhythmGameAssets.Scripts
         
         private int _nextNoteIndex;
         Queue<int> activeNoteIds = new Queue<int>();
+
+        // Hold-note tracking: direction → note ID currently being held
+        private Dictionary<NoteDirection, int> _heldNoteIds = new Dictionary<NoteDirection, int>();
+        // Hold-note tracking: direction → song time (ms) when the hold started
+        private Dictionary<NoteDirection, double> _heldNoteStartSongTime = new Dictionary<NoteDirection, double>();
+
         private Chart _chart; // current chart
         
         private double DelaySeconds => delay / 1000.0;
@@ -44,12 +50,19 @@ namespace RhythmGameAssets.Scripts
         {
             var songTime = metronome.GetPlaybackTime() * 1000.0;
 
-            while (songTime + (notePool.timeOnScreen * 1000.0) >= GetNoteTime(_nextNoteIndex))
+            while (_nextNoteIndex < _chart.Notes.Count &&
+                   songTime + (notePool.timeOnScreen * 1000.0) >= GetNoteTime(_nextNoteIndex))
             {
                 activeNoteIds.Enqueue(_nextNoteIndex);
-                notePool.SpawnNote(_nextNoteIndex, _chart.Notes[_nextNoteIndex++].Direction);
+                var chartNote = _chart.Notes[_nextNoteIndex];
+                float holdDuration = (float)(GetNoteLengthMs(_nextNoteIndex) / 1000.0);
+                notePool.SpawnNote(_nextNoteIndex, chartNote.Direction, holdDuration);
+                _nextNoteIndex++;
             }
-            
+
+            // Update any notes currently being held
+            UpdateHeldNotes(songTime);
+
             if (Keyboard.current.aKey.wasPressedThisFrame)
             {
                 leftTarget.PlayPop();
@@ -105,12 +118,68 @@ namespace RhythmGameAssets.Scripts
                     if (KeyboardPressFromDirection(note.Direction))
                     {
                         _scoreHandler.NoteHitScoring(songTime - timeToNextNote);
-                    }
 
-                    notePool.Release(notePool.GetActiveNoteById(id));
+                        if (note.Length > 0) // hold note: freeze head and begin tracking the tail
+                        {
+                            var noteBehavior = notePool.GetActiveNoteById(id);
+                            noteBehavior.StartHold();
+                            _heldNoteIds[note.Direction] = id;
+                            _heldNoteStartSongTime[note.Direction] = songTime;
+                            // Don't release from the pool yet; UpdateHeldNotes will do it
+                        }
+                        else
+                        {
+                            notePool.Release(notePool.GetActiveNoteById(id));
+                        }
+                    }
+                    else
+                    {
+                        notePool.Release(notePool.GetActiveNoteById(id));
+                    }
                 }
             }
-            
+
+        }
+
+        // Advances hold-note state each frame. Scores and releases notes when the hold ends.
+        private void UpdateHeldNotes(double songTime)
+        {
+            var toRelease = new List<NoteDirection>();
+
+            foreach (var kvp in _heldNoteIds)
+            {
+                NoteDirection dir = kvp.Key;
+                int noteId = kvp.Value;
+
+                var noteBehavior = notePool.GetActiveNoteById(noteId);
+                if (noteBehavior == null) // already cleaned up somehow
+                {
+                    toRelease.Add(dir);
+                    continue;
+                }
+
+                double holdElapsedMs = songTime - _heldNoteStartSongTime[dir];
+                double holdDurationMs = GetNoteLengthMs(noteId);
+                float progress = (float)Math.Min(holdElapsedMs / holdDurationMs, 1.0);
+
+                noteBehavior.UpdateHoldVisual(progress);
+
+                bool holdComplete = songTime >= GetNoteTime(noteId) + holdDurationMs;
+                bool keyReleased = !KeyboardHeldFromDirection(dir);
+
+                if (holdComplete || keyReleased)
+                {
+                    _scoreHandler.HoldNoteScoring(progress);
+                    notePool.Release(noteBehavior);
+                    toRelease.Add(dir);
+                }
+            }
+
+            foreach (var dir in toRelease)
+            {
+                _heldNoteIds.Remove(dir);
+                _heldNoteStartSongTime.Remove(dir);
+            }
         }
 
         private double GetNoteTime(int noteIndex)
@@ -118,6 +187,12 @@ namespace RhythmGameAssets.Scripts
             return _chart.Notes[noteIndex].Position * 60000.0 / (_chart.BPM * 192);
         }
         
+
+        private double GetNoteLengthMs(int noteIndex)
+        {
+            return _chart.Notes[noteIndex].Length * 60000.0 / (_chart.BPM * 192);
+        }
+
         private double GetActiveNoteTime()
         {
             return _chart.Notes[activeNoteIds.Peek()].Position * 60000.0 / (_chart.BPM * 192);
@@ -131,6 +206,18 @@ namespace RhythmGameAssets.Scripts
                 NoteDirection.Up => Keyboard.current.wKey.wasPressedThisFrame,
                 NoteDirection.Down => Keyboard.current.sKey.wasPressedThisFrame,
                 NoteDirection.Right => Keyboard.current.dKey.wasPressedThisFrame,
+                _ => false
+            };
+        }
+
+        private bool KeyboardHeldFromDirection(NoteDirection direction)
+        {
+            return direction switch
+            {
+                NoteDirection.Left => Keyboard.current.aKey.isPressed,
+                NoteDirection.Up => Keyboard.current.wKey.isPressed,
+                NoteDirection.Down => Keyboard.current.sKey.isPressed,
+                NoteDirection.Right => Keyboard.current.dKey.isPressed,
                 _ => false
             };
         }
