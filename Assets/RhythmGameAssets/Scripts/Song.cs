@@ -6,6 +6,7 @@ namespace RhythmGameAssets.Scripts
     public class Song
     {
         public string Name { get; set; }
+        public string Artist { get; set; }
 
         // Dictionary of all song charts
         // Key: Difficulty, Value: List of charts
@@ -14,6 +15,12 @@ namespace RhythmGameAssets.Scripts
         public Song(string name)
         {
             Name = name;
+        }
+        
+        public Song(string name, string artist)
+        {
+            Name = name;
+            Artist = artist;
         }
 
         /// <summary>

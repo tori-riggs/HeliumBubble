@@ -7,6 +7,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.Android;
 using UnityEngine.Serialization;
+using MainMenu;
 
 namespace RhythmGameAssets.Scripts
 {
@@ -54,7 +55,9 @@ namespace RhythmGameAssets.Scripts
         // <Position> = B <Tempo>
         // public float BPM { get; private set; } // tempo
         private int _noteCount = 0;
-        public List<ChartNote> Notes = new();
+        // public List<ChartNote> Notes = new();
+
+        private MainMenu.MainMenu _mainMenu;
         
         // Temporary CurrentChart field.
         public Song CurrentSong { get; private set; }
@@ -70,6 +73,8 @@ namespace RhythmGameAssets.Scripts
             // Instrument = nameof(Instruments.GUITAR1); // default instrument
             
             // Get full path of the Songs directory
+            var selectedSong = _mainMenu.SongList[selectedSongName];
+            
             songsDir = Path.GetFullPath(songsDir);
             // Songs/<song_name>/notes.chart
             // TODO: Support song selection
@@ -86,6 +91,7 @@ namespace RhythmGameAssets.Scripts
                                   "exist in the current directory.");
                 // TODO throw error
             }
+            // _mainMenu.SongList()
             CurrentSong = new Song(selectedSongName);
             Chart chart = new Chart(selectedSongName);
             try
@@ -137,9 +143,9 @@ namespace RhythmGameAssets.Scripts
                             {
                                 // Code to remove the empty entries by CBinet:
                                 // https://stackoverflow.com/a/44868165/16776633
-                                string[] header = Regex.Split(line, 
+                                string[] header = Regex.Split(line,
                                     @"([A-Z][^A-Z\]]+)").Where(s => s != string.Empty).ToArray();
-                                if (Enum.IsDefined(typeof(Difficulties), header[1].ToUpper()) 
+                                if (Enum.IsDefined(typeof(Difficulties), header[1].ToUpper())
                                     && Enum.IsDefined(typeof(Instruments), header[2].ToUpper()))
                                 {
                                     // TODO getters and setters
@@ -149,6 +155,10 @@ namespace RhythmGameAssets.Scripts
                                     parsingMode = true;
                                 }
                             }
+                        } else if (line.Trim().StartsWith("Artist:")) { // Artist: "Artist"
+                            string[] artistLine = line.Trim().Split(':');
+                            // [Artist, :, "Artist Name"]
+                            CurrentSong.Artist = artistLine[1].Trim('"');
                         } else if (line.Trim().StartsWith("Off"))
                         {
                             string[] offsetLine = line.Trim().Split(' ');
