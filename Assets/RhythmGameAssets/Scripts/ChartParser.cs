@@ -24,6 +24,8 @@ namespace RhythmGameAssets.Scripts
             KEYS2,
             KEYBOARD,
             VOCALS,
+            DOUBLERHYTHM,
+            DOUBLEBASS,
             SINGLE // parsing purposes
         }
 
@@ -40,30 +42,22 @@ namespace RhythmGameAssets.Scripts
         [SerializeField] private string chartFile = @"notes.chart"; // notes.chart file name
         [SerializeField] private string chartPath;
 
+        // TODO change to proper song selection
         [SerializeField] public string selectedSongName; // Selected song
 
-        // [SerializeField] public Song selectedSong = new Song(); // Selected song
         // TODO audio should be stored alongside the files
         [SerializeField] private string audioPath;
 
-        // Note: might change in the middle of the song!
         private int _noteCount = 0;
         // public List<ChartNote> Notes = new();
-
         private MainMenu.MainMenu _mainMenu; // Main Menu
-
-        // Temporary CurrentChart field.
-        public Song CurrentSong { get; private set; }
-        public Chart CurrentChart { get; private set; }
-
-        // String: Section, Array: [start, end]
-
+        
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Awake()
         {
-            // Get full path of the Songs directory
-            var selectedSong = _mainMenu.SongList[selectedSongName];
+            var song = _mainMenu.SongList[selectedSongName];
 
+            // Get full path of the Songs directory
             songsDir = Path.GetFullPath(songsDir);
             // TODO: Support song selection
             var selectedDir = TestChartParser(); // testing
@@ -81,9 +75,7 @@ namespace RhythmGameAssets.Scripts
                 throw new FileNotFoundException(chartPath);
             }
 
-            // _mainMenu.SongList()
-            CurrentSong = new Song(selectedSongName);
-            Chart chart = new Chart(selectedSongName);
+            var chart = new Chart(selectedSongName); // current chart
             try
             {
                 Boolean parsingMode = false;
@@ -103,8 +95,8 @@ namespace RhythmGameAssets.Scripts
                         {
                             if (line.Trim().StartsWith("}"))
                             {
-                                CurrentChart = chart;
-                                AddChartSong(CurrentSong, CurrentChart); // add chart to song's chart dictionary
+                                AddChartSong(song, chart); // add chart to song's chart dictionary
+                                chart = new Chart(selectedSongName); // new chart instance
                                 parsingMode = false;
                             }
                             ParseNotes(line.Trim(), chart);
@@ -168,8 +160,8 @@ namespace RhythmGameAssets.Scripts
                 throw new IOException(e.Message);
             }
 
-            AddChartSong(CurrentSong, chart); // add chart to song's chart dictionary
-            CurrentChart = chart; // set current chart as the chart
+            // AddChartSong(CurrentSong, chart); // add chart to song's chart dictionary
+            // CurrentChart = chart; // set current chart as the chart
         }
 
         // Update is called once per frame

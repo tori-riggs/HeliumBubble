@@ -46,6 +46,7 @@ namespace MainMenu
                 Song song = new Song(songName, artist);
                 // Key: Song Name, Value: Song object
                 SongList.Add(song.Name, song);
+                // TODO call chart parser?
             }
         }
 
@@ -81,7 +82,6 @@ namespace MainMenu
                             firstLine = false; // song.ini is valid, move onto next line
                         } else if (line.StartsWith("name"))
                         {
-                            // name = song name
                             var songLine = line.Trim().Split('=');
                             string songName = songLine[1].Trim();
                             songInfo.Add(songName);
@@ -91,7 +91,6 @@ namespace MainMenu
                             var artistLine = line.Trim().Split('=');
                             string artist = artistLine[1].Trim();
                             songInfo.Add(artist);
-                            // return artist;
                         }
                     }
                 }
@@ -111,7 +110,7 @@ namespace MainMenu
         private void DefaultSelection()
         {
             var selectedSong = SongList["Mirage"];
-            var difficulty = "HARD";
+            var difficulty = "EXPERT";
             var instrument = "SINGLE";
             SavedSettings.SelectedSong = selectedSong;
             SavedSettings.Difficulty = difficulty;

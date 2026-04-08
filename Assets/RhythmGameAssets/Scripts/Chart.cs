@@ -14,14 +14,6 @@ namespace RhythmGameAssets.Scripts
         public float BPM { get; set; }
         public List<ChartNote> Notes { get; private set; }
 
-        // public Chart(string songName, string instrument, string difficulty)
-        // {
-        //     SongName = songName;
-        //     Instrument = instrument;
-        //     Difficulty = difficulty;
-        //     Notes = new List<ChartNote>();
-        // }
-
         public Chart(string songName)
         {
             SongName = songName;
