@@ -357,6 +357,54 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!1 &1192212884
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1192212886}
+  - component: {fileID: 1192212885}
+  m_Layer: 0
+  m_Name: ChartParser
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1192212885
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1192212884}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd65943812d904a95a858495ef2eee46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RhythmGameAssets.Scripts.ChartParser
+  songsDir: Assets/RhythmGameAssets/Resources/Songs
+  chartFile: notes.chart
+  chartPath: 
+  audioPath: 
+--- !u!4 &1192212886
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1192212884}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -5.81622, y: 0.40279, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1303663047
 GameObject:
   m_ObjectHideFlags: 0
@@ -387,6 +435,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   SavedSettings: {fileID: 0}
+  ChartParser: {fileID: 0}
   songsDir: Assets/RhythmGameAssets/Resources/Songs
 --- !u!4 &1303663049
 Transform:
@@ -536,3 +585,4 @@ SceneRoots:
   - {fileID: 1778343229}
   - {fileID: 1303663049}
   - {fileID: 1382710204}
+  - {fileID: 1192212886}

@@ -24,14 +24,11 @@ namespace MainMenu
         {
             // _songManager = FindFirstObjectByType<SongManager>();
             SavedSettings = ScriptableObject.CreateInstance<SavedSettings>();
-            // foreach (var s in SongManager.Instance.SongList)
-            // {
-            //     var songName = SongManager.Instance.SongList[s.Key].Name;
-            //     ChartParser.selectedSongName = songName;
-            //     ChartParser
-            //
-            // }
+            ChartParser = FindFirstObjectByType<ChartParser>();
+            if (ChartParser.didAwake)
+                Debug.Log("ChartParser did wake.");
             DefaultSelection(); // TODO remove debug function
+            Debug.Log("Success.");
             // SceneManager.LoadScene("Scenes/RythmnGame");
         }
         

@@ -14,7 +14,7 @@ namespace MainMenu
 
         // Singleton instance
         public static SongManager Instance { get; private set; }
-        public ChartParser ChartParser { get; private set; }
+        // public ChartParser ChartParser { get; private set; }
         // [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         void Awake()
         {

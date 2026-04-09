@@ -22,7 +22,7 @@ namespace RhythmGameAssets.Scripts
         [SerializeField] private float delay = 0f; // milliseconds
         [SerializeField] private NoteDirection beatSpawnDirection = NoteDirection.Down;
         
-        [SerializeField] private ChartParser chartParser;
+        // [SerializeField] private ChartParser chartParser;
         [SerializeField] private SavedSettings savedSettings;
         [SerializeField] private ScoreHandler _scoreHandler;
         

@@ -43,7 +43,7 @@ namespace RhythmGameAssets.Scripts
         [SerializeField] private string chartPath;
 
         // TODO change to proper song selection
-        [SerializeField] public string selectedSongName; // Selected song
+        // [SerializeField] public string selectedSongName; // Selected song
 
         // TODO audio should be stored alongside the files
         [SerializeField] private string audioPath;
@@ -54,12 +54,19 @@ namespace RhythmGameAssets.Scripts
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Awake()
         {
-            var song = SongManager.Instance.SongList[selectedSongName];
-
+            foreach (var s in SongManager.Instance.SongList)
+            {
+                ParseCharts(s.Value); // Parse charts for the song
+            }
+        }
+        
+        private void ParseCharts(Song song) {
+            var selectedSongName = song.Name; // get song name
             // Get full path of the Songs directory
             songsDir = Path.GetFullPath(songsDir);
             // TODO: Support song selection
-            var selectedDir = TestChartParser(); // testing
+            // var selectedDir = TestChartParser(); // testing
+            var selectedDir = Path.Join(songsDir, selectedSongName);
             // Get the file path of the notes.chart file
             chartPath = Path.Join(selectedDir, chartFile); // Songs/<song_name>/notes.chart
             // HeliumBubbleRhythmGame/Assets/RhythmGameAssets/Resources/Songs/notes.chart
@@ -97,8 +104,12 @@ namespace RhythmGameAssets.Scripts
                                 AddChartSong(song, chart); // add chart to song's chart dictionary
                                 chart = new Chart(selectedSongName); // new chart instance
                                 parsingMode = false;
+                                _noteCount = 0; // reset note count/id
                             }
-                            ParseNotes(line.Trim(), chart);
+                            else
+                            {
+                                ParseNotes(line.Trim(), chart);
+                            }
                         }
                         else if (line.Trim().StartsWith("Off"))
                         {
@@ -259,14 +270,14 @@ namespace RhythmGameAssets.Scripts
             song.AddChart(chart.Difficulty, chart);
         }
 
-        private string TestChartParser()
-        {
-            // TODO: Test ChartParser.AddChart
-            selectedSongName = "Mirage";
-            var selectedDir = Path.Join(songsDir, selectedSongName);
-            // var fullPath = Path.Join(selectedDir, chartFile);
-            return selectedDir;
-        }
+        // private string TestChartParser()
+        // {
+        //     // TODO: Test ChartParser.AddChart
+        //     selectedSongName = "Mirage";
+        //     var selectedDir = Path.Join(songsDir, selectedSongName);
+        //     // var fullPath = Path.Join(selectedDir, chartFile);
+        //     return selectedDir;
+        // }
         //
         // private string ParseCharts()
         // {
