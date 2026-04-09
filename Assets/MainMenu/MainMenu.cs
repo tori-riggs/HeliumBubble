@@ -25,6 +25,7 @@ namespace MainMenu
             // _songManager = FindFirstObjectByType<SongManager>();
             // SavedSettings = ScriptableObject.CreateInstance<SavedSettings>();
             // SavedSettings = GetComponent<SavedSettings>();
+            // SceneManager.LoadScene("Scenes/Startup");
             if (SongManager.Instance == null)
                 throw new NullReferenceException("SongManager is null");
             DefaultSelection(); // TODO remove debug function
