@@ -50,12 +50,11 @@ namespace RhythmGameAssets.Scripts
 
         private int _noteCount = 0;
         // public List<ChartNote> Notes = new();
-        private MainMenu.MainMenu _mainMenu; // Main Menu
         
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Awake()
         {
-            var song = _mainMenu.SongList[selectedSongName];
+            var song = SongManager.Instance.SongList[selectedSongName];
 
             // Get full path of the Songs directory
             songsDir = Path.GetFullPath(songsDir);
@@ -268,5 +267,14 @@ namespace RhythmGameAssets.Scripts
             // var fullPath = Path.Join(selectedDir, chartFile);
             return selectedDir;
         }
+        //
+        // private string ParseCharts()
+        // {
+        //     foreach (var s in SongManager.Instance.SongList)
+        //     {
+        //         selectedSongName = s.Key;
+        //         
+        //     }
+        // }
     }
 }
