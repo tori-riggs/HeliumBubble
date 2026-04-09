@@ -23,6 +23,7 @@ namespace RhythmGameAssets.Scripts
         [SerializeField] private NoteDirection beatSpawnDirection = NoteDirection.Down;
         
         // [SerializeField] private ChartParser chartParser;
+        // TODO: Saved settings not being used
         [SerializeField] private SavedSettings savedSettings;
         [SerializeField] private ScoreHandler _scoreHandler;
         

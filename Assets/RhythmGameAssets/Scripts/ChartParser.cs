@@ -42,14 +42,11 @@ namespace RhythmGameAssets.Scripts
         [SerializeField] private string chartFile = @"notes.chart"; // notes.chart file name
         [SerializeField] private string chartPath;
 
-        // TODO change to proper song selection
         // [SerializeField] public string selectedSongName; // Selected song
-
         // TODO audio should be stored alongside the files
         [SerializeField] private string audioPath;
-
         private int _noteCount = 0;
-        // public List<ChartNote> Notes = new();
+        // public ChartParser Instance { get; private set; }        
         
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Awake()

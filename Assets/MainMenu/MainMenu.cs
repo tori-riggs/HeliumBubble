@@ -24,12 +24,12 @@ namespace MainMenu
         {
             // _songManager = FindFirstObjectByType<SongManager>();
             SavedSettings = ScriptableObject.CreateInstance<SavedSettings>();
+            DefaultSelection(); // TODO remove debug function
             ChartParser = FindFirstObjectByType<ChartParser>();
             if (ChartParser.didAwake)
                 Debug.Log("ChartParser did wake.");
-            DefaultSelection(); // TODO remove debug function
             Debug.Log("Success.");
-            // SceneManager.LoadScene("Scenes/RythmnGame");
+            SceneManager.LoadScene("Scenes/RythmnGame");
         }
         
         // Update is called once per frame
