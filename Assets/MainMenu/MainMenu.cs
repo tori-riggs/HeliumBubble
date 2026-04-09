@@ -23,13 +23,17 @@ namespace MainMenu
         void Start()
         {
             // _songManager = FindFirstObjectByType<SongManager>();
-            SavedSettings = ScriptableObject.CreateInstance<SavedSettings>();
+            // SavedSettings = ScriptableObject.CreateInstance<SavedSettings>();
+            // SavedSettings = GetComponent<SavedSettings>();
+            if (SongManager.Instance == null)
+                throw new NullReferenceException("SongManager is null");
             DefaultSelection(); // TODO remove debug function
-            ChartParser = FindFirstObjectByType<ChartParser>();
-            if (ChartParser.didAwake)
-                Debug.Log("ChartParser did wake.");
+            Debug.Log($"SavedSettings Difficulty: {SavedSettings.Difficulty}");
+            // ChartParser = FindFirstObjectByType<ChartParser>();
+            // if (ChartParser.didAwake)
+            //     Debug.Log("ChartParser did wake.");
             Debug.Log("Success.");
-            SceneManager.LoadScene("Scenes/RythmnGame");
+            // SceneManager.LoadScene("Scenes/RythmnGame");
         }
         
         // Update is called once per frame

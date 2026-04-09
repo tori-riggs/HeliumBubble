@@ -5,8 +5,8 @@ using System.IO;
 
 namespace MainMenu
 {
-    [CreateAssetMenu(fileName = "SavedSettings", menuName = "Scriptable Objects/SavedSettings")]
-    public class SavedSettings : ScriptableObject
+    // [CreateAssetMenu(fileName = "SavedSettings", menuName = "Scriptable Objects/SavedSettings")]
+    public class SavedSettings : MonoBehaviour
     {
         public string Difficulty { get; set; }
         public string Instrument { get; set; }

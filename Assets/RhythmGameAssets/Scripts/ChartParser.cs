@@ -49,7 +49,7 @@ namespace RhythmGameAssets.Scripts
         // public ChartParser Instance { get; private set; }        
         
         // Start is called once before the first execution of Update after the MonoBehaviour is created
-        void Awake()
+        void Start()
         {
             foreach (var s in SongManager.Instance.SongList)
             {

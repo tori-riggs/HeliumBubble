@@ -3,7 +3,6 @@ using UnityEngine;
 using RhythmGameAssets.Scripts;
 using System.Collections.Generic;
 using System.IO;
-using RhythmGameAssets.Scripts;
 
 namespace MainMenu
 {
