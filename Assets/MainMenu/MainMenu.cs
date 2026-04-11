@@ -7,12 +7,13 @@ using System.IO;
 using TMPro;
 using Unity.VectorGraphics;
 using UnityEngine.SceneManagement;
+using Scene = Unity.VectorGraphics.Scene;
 
 namespace MainMenu
 {
     public class MainMenu : MonoBehaviour
     {
-        public SavedSettings SavedSettings; // song settings
+        // public SavedSettings SavedSettings; // song settings
         public ChartParser ChartParser;
 
         // private SongManager _songManager;
@@ -22,25 +23,28 @@ namespace MainMenu
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Start()
         {
-            // _songManager = FindFirstObjectByType<SongManager>();
-            // SavedSettings = ScriptableObject.CreateInstance<SavedSettings>();
-            // SavedSettings = GetComponent<SavedSettings>();
-            // SceneManager.LoadScene("Scenes/Startup");
-            if (SongManager.Instance == null)
-                throw new NullReferenceException("SongManager is null");
-            DefaultSelection(); // TODO remove debug function
-            Debug.Log($"SavedSettings Difficulty: {SavedSettings.Difficulty}");
-            // ChartParser = FindFirstObjectByType<ChartParser>();
-            // if (ChartParser.didAwake)
-            //     Debug.Log("ChartParser did wake.");
-            Debug.Log("Success.");
-            // SceneManager.LoadScene("Scenes/RythmnGame");
+            StartMain();
         }
         
         // Update is called once per frame
         void Update()
         {
 
+        }
+
+        private void StartMain()
+        {
+            // _songManager = FindFirstObjectByType<SongManager>();
+            // SavedSettings = ScriptableObject.CreateInstance<SavedSettings>();
+            // SceneManager.LoadScene("Scenes/Startup");
+            if (SongManager.Instance == null)
+                throw new NullReferenceException("SongManager is null");
+            DefaultSelection(); // TODO remove debug function
+            Debug.Log($"SavedSettings Difficulty: {SavedSettings.Instance.Difficulty}");
+            ChartParser = FindFirstObjectByType<ChartParser>();
+            if (ChartParser.didAwake)
+                Debug.Log("ChartParser did wake.");
+            Debug.Log("Success.");
         }
         
         /// <summary>
@@ -49,11 +53,12 @@ namespace MainMenu
         private void DefaultSelection()
         {
             var selectedSong = SongManager.Instance.SongList["Mirage"];
+            Debug.Log("DefaultSelection Entered");
             var difficulty = "EXPERT";
             var instrument = "SINGLE";
-            SavedSettings.SelectedSong = selectedSong;
-            SavedSettings.Difficulty = difficulty;
-            SavedSettings.Instrument = instrument;
+            SavedSettings.Instance.SelectedSong = selectedSong;
+            SavedSettings.Instance.Difficulty = difficulty;
+            SavedSettings.Instance.Instrument = instrument;
             // SavedSettings.SelectedChart = selectedSong.GetChart(difficulty, instrument);
         }
     }

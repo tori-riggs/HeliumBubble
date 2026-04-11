@@ -24,7 +24,7 @@ namespace RhythmGameAssets.Scripts
         
         // [SerializeField] private ChartParser chartParser;
         // TODO: Saved settings not being used
-        [SerializeField] private SavedSettings savedSettings;
+        // [SerializeField] private SavedSettings savedSettings;
         [SerializeField] private ScoreHandler _scoreHandler;
         
         private int _nextNoteIndex;
@@ -37,9 +37,9 @@ namespace RhythmGameAssets.Scripts
         {
             metronome.StartPlayback();
             // _song = chartParser.CurrentSong;
-            var difficulty = savedSettings.Difficulty;
-            var instrument = savedSettings.Instrument;
-            _chart = savedSettings.SelectedSong.GetChart(difficulty, instrument);
+            var difficulty = SavedSettings.Instance.Difficulty;
+            var instrument = SavedSettings.Instance.Instrument;
+            _chart = SavedSettings.Instance.SelectedSong.GetChart(difficulty, instrument);
             foreach (ChartNote note in _chart.Notes)
             {
                 Debug.Log(note);

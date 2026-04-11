@@ -12,6 +12,18 @@ namespace MainMenu
         public string Instrument { get; set; }
         public Song SelectedSong { get; set; }
         public Chart SelectedChart { get; set; }
+        public static SavedSettings Instance { get; set; }
+
+        void Start()
+        {
+            if (Instance != null && Instance != this)
+                Destroy(this);
+            else
+            {
+                Instance = this;
+                DontDestroyOnLoad(gameObject);
+            }
+        }
     }
     
 }
