@@ -40,8 +40,8 @@ namespace MainMenu
             if (SongManager.Instance == null)
                 throw new NullReferenceException("SongManager is null");
             DefaultSelection(); // TODO remove debug function
-            Debug.Log($"SavedSettings Difficulty: {SavedSettings.Instance.Difficulty}");
-            ChartParser = FindFirstObjectByType<ChartParser>();
+            // Debug.Log($"SavedSettings Difficulty: {SavedSettings.Instance.Difficulty}");
+            // ChartParser = FindFirstObjectByType<ChartParser>();
             if (ChartParser.didAwake)
                 Debug.Log("ChartParser did wake.");
             Debug.Log("Success.");
