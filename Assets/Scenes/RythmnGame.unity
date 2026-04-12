@@ -475,7 +475,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a3c728054fafda40836a1de0406ec7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Networking
-  websocketIP: 129.21.72.30:8080
+  _metronome: {fileID: 0}
+  WebsocketIP: localhost:8080
   SelectedInstrument: 0
 --- !u!4 &422211542
 Transform:
@@ -1096,7 +1097,6 @@ MonoBehaviour:
   bpm: 121
   delay: 0
   beatSpawnDirection: 2
-  savedSettings: {fileID: 11400000, guid: 841157ff183b74716b0ebd5a91f6abb0, type: 2}
   _scoreHandler: {fileID: 1974947953}
 --- !u!1 &1162043232
 GameObject:
@@ -1882,7 +1882,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: a00e75a6b3fc3734ca1c53f044427353, type: 3}
+  m_Resource: {fileID: 8300000, guid: c274a9880aea4ff4bbab328c23147e1d, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -1981,7 +1981,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Metronome
   audioSource: {fileID: 1900708972}
-  startDelaySeconds: 0
+  startDelaySeconds: 4
   songTimer: {fileID: 905892114}
 --- !u!4 &1900708974
 Transform:
