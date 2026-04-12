@@ -27,6 +27,7 @@ namespace RhythmGameAssets.Scripts
             DOUBLEBASS,
             SINGLE // parsing purposes
         }
+
         private enum Difficulties
         {
             EASY,
@@ -172,7 +173,6 @@ namespace RhythmGameAssets.Scripts
         // Update is called once per frame
         void Update()
         {
-        
         }
 
         // TODO documentation

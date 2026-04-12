@@ -74,18 +74,6 @@ namespace RhythmGameAssets.Scripts
             CheckForInstrumentAdjust();
         }
 
-        // Called when a hold note tail ends (either completed or released early).
-        // heldFraction: 0.0 (not held at all) → 1.0 (fully completed).
-        // Does not increment note count; the head hit already counted this note.
-        public void HoldNoteScoring(float heldFraction)
-        {
-            int holdBonus = Mathf.RoundToInt(goodScore * heldFraction);
-            Score += holdBonus;
-
-            communicator.SendScorePacket(Score);
-            scoreText.text = Score.ToString();
-        }
-
         private void CheckForInstrumentAdjust()
         {
             if (_TotalNoteCount % HIT_COUNT_INTERVAL == 0)

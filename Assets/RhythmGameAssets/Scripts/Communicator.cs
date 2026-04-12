@@ -17,8 +17,6 @@ namespace RhythmGameAssets.Scripts
         CONNECTION,
         SCORE,
         SOUND,
-        SYNC,
-        PING
     }
 
     public class WebPacket
@@ -32,16 +30,6 @@ namespace RhythmGameAssets.Scripts
             Sender = sender;
             Type = type;
             TimeSent = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        }
-
-        public string ToJSON()
-        {
-            return JsonConvert.SerializeObject(this);
-        }
-
-        public static WebPacket FromJSON(String jsonString)
-        {
-            return JsonConvert.DeserializeObject<WebPacket>(jsonString);
         }
     }
 
@@ -65,12 +53,12 @@ namespace RhythmGameAssets.Scripts
             Instrument = instrument;
         }
 
-        public new string ToJSON()
+        public string ToJSON()
         {
             return JsonConvert.SerializeObject(this);
         }
 
-        public new static ConnectionPacket FromJSON(String jsonString)
+        public static ConnectionPacket FromJSON(String jsonString)
         {
             return JsonConvert.DeserializeObject<ConnectionPacket>(jsonString);
         }
@@ -87,12 +75,12 @@ namespace RhythmGameAssets.Scripts
             Score = score;
         }
 
-        public new string ToJSON()
+        public string ToJSON()
         {
             return JsonConvert.SerializeObject(this);
         }
 
-        public new static ScorePacket FromJSON(String jsonString)
+        public static ScorePacket FromJSON(String jsonString)
         {
             return JsonConvert.DeserializeObject<ScorePacket>(jsonString);
         }
@@ -109,79 +97,26 @@ namespace RhythmGameAssets.Scripts
             RecentNotePercentage = recentNotePercentage;
         }
 
-        public new string ToJSON()
+        public string ToJSON()
         {
             return JsonConvert.SerializeObject(this);
         }
 
-        public new static SoundPacket FromJSON(String jsonString)
+        public static SoundPacket FromJSON(String jsonString)
         {
             return JsonConvert.DeserializeObject<SoundPacket>(jsonString);
         }
     }
 
-    public class SyncPacket : WebPacket
-    {
-        public bool SongIsPlaying;
-        public float SongTime;
-
-        public SyncPacket(bool songIsPlaying, float songTime) : base(Sender.CLIENT, PacketType.SYNC)
-        {
-            SongIsPlaying = songIsPlaying;
-            SongTime = songTime;
-        }
-
-        public new string ToJSON()
-        {
-            return JsonConvert.SerializeObject(this);
-        }
-
-        public new static SyncPacket FromJSON(String jsonString)
-        {
-            return JsonConvert.DeserializeObject<SyncPacket>(jsonString);
-        }
-    }
-
-    public class PingPacket : WebPacket
-    {
-        public long TimeReceived;
-        public Instrument Instrument;
-
-        public PingPacket(long timeReceived, Instrument instrument) : base(Sender.CLIENT, PacketType.PING)
-        {
-            TimeReceived = timeReceived;
-            Instrument = instrument;
-        }
-
-        public new string ToJSON()
-        {
-            return JsonConvert.SerializeObject(this);
-        }
-
-        public new static PingPacket FromJSON(String jsonString)
-        {
-            return JsonConvert.DeserializeObject<PingPacket>(jsonString);
-        }
-    }
-
     public class Communicator : MonoBehaviour
     {
-        [SerializeField] Metronome _metronome;
-
-        [SerializeField] string WebsocketIP = "localhost:8080";
+        [SerializeField] string websocketIP = "localhost:8080";
         [SerializeField] Instrument SelectedInstrument = Instrument.BASS;
-
         private WebSocket _websocket;
-        private long _lastPingSent = -1;
-
-        private float _avgLatency = 0f;
-        private float _totalLatency = 0f;
-        private int _numPings = 0;
-        private readonly int PINGS_TO_AVERAGE = 10;
 
         async void Start()
         {
-            _websocket = new WebSocket("ws://" + WebsocketIP);
+            _websocket = new WebSocket("ws://" + websocketIP);
 
             _websocket.OnOpen += () => { SendConnectionPacket(); };
 
@@ -189,23 +124,10 @@ namespace RhythmGameAssets.Scripts
 
             _websocket.OnMessage += (bytes) =>
             {
-                string packetJSON = System.Text.Encoding.Default.GetString(bytes);
-                WebPacket basePacket = WebPacket.FromJSON(packetJSON);
-
-                switch (basePacket.Type)
-                {
-                    case PacketType.SYNC:
-                        SyncPacket sPacket = SyncPacket.FromJSON(packetJSON);
-                        HandleClientSync(sPacket);
-                        break;
-                    case PacketType.PING:
-                        PingPacket pPacket = PingPacket.FromJSON(packetJSON);
-                        CalculateServerLatency(pPacket);
-                        break;
-                }
+                Debug.Log("Message received.");
+                //string message = System.Text.Encoding.Default.GetString(bytes);
+                //Debug.Log(message);
             };
-
-            InvokeRepeating("SendPingPacket", 1, 0.5f);
 
             await _websocket.Connect();
         }
@@ -214,6 +136,8 @@ namespace RhythmGameAssets.Scripts
         {
             if (_websocket.State == WebSocketState.Open)
             {
+                // TODO: Change this later to be selected instrument instead
+                // of bass default
                 ConnectionPacket cPacket = new(true, SelectedInstrument);
                 await _websocket.SendText(cPacket.ToJSON());
             }
@@ -223,42 +147,19 @@ namespace RhythmGameAssets.Scripts
         {
             if (_websocket.State == WebSocketState.Open)
             {
+                // TODO: Change this later to be selected instrument instead
+                // of bass default
                 ConnectionPacket cPacket = new(false, SelectedInstrument);
                 await _websocket.SendText(cPacket.ToJSON());
             }
-        }
-
-        async void SendPingPacket()
-        {
-            PingPacket pingPacket = new(-1, SelectedInstrument);
-            _lastPingSent = pingPacket.TimeSent;
-            await _websocket.SendText(pingPacket.ToJSON());
-
-        }
-
-        void CalculateServerLatency(PingPacket packet)
-        {
-            _numPings += 1;
-
-            long received = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-
-            _totalLatency += (received - _lastPingSent) / 2;
-
-            if (_numPings % PINGS_TO_AVERAGE == 0)
-            {
-                _avgLatency = _totalLatency / PINGS_TO_AVERAGE;
-
-                //Debug.Log("AVERAGE: " + _avgLatency);
-
-                _totalLatency = 0f;
-                _numPings = 0;
-            }            
         }
 
         public async void SendScorePacket(int score)
         {
             if (_websocket.State == WebSocketState.Open)
             {
+                // TODO: Change this later to be selected instrument instead
+                // of bass default
                 ScorePacket sPacket = new(SelectedInstrument, score);
                 await _websocket.SendText(sPacket.ToJSON());
             }
@@ -268,14 +169,11 @@ namespace RhythmGameAssets.Scripts
         {
             if (_websocket.State == WebSocketState.Open)
             {
+                // TODO: Change this later to be selected instrument instead
+                // of bass default
                 SoundPacket sPacket = new(SelectedInstrument, notePercentage);
                 await _websocket.SendText(sPacket.ToJSON());
             }
-        }
-
-        void HandleClientSync(SyncPacket packet)
-        { 
-            _metronome.AdjustPlaybackTime(packet.SongIsPlaying, packet.SongTime + _avgLatency / 1000f);
         }
 
         void Update()

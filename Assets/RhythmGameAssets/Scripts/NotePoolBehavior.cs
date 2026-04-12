@@ -105,9 +105,8 @@ namespace RhythmGameAssets.Scripts
 
         /// <summary>
         /// Spawns a note with a given NoteId + direction.
-        /// Pass holdDurationSeconds > 0 for hold notes.
         /// </summary>
-        public NoteBehavior SpawnNote(int noteId, NoteDirection dir, float holdDurationSeconds = 0f)
+        public NoteBehavior SpawnNote(int noteId, NoteDirection dir)
         {
             if (_activeById.TryGetValue(noteId, out var existing))
             {
@@ -125,8 +124,8 @@ namespace RhythmGameAssets.Scripts
             var position = GetTarget(dir).transform.position;
             note.transform.position = position + _spawnPoint;
 
-            note.Initialize(position, _noteSpeed, holdDurationSeconds);
-
+            note.Initialize(position, _noteSpeed);
+        
             return note;
         }
 
