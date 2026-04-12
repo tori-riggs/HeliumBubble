@@ -6,21 +6,13 @@ namespace RhythmGameAssets.Scripts
     {
         public string SongName { get; private set; }
         // Array with instrument and difficulty?
-        public string Instrument { get; set; }
-        public string Difficulty { get; set; }
+        public string Difficulty { get; set; } // uppercase
+        public string Instrument { get; set; } // uppercase
         public float Offset { get; set; }
         public int TimeSignature { get; set; }
         // <Position> = B <Tempo>
         public float BPM { get; set; }
         public List<ChartNote> Notes { get; private set; }
-
-        // public Chart(string songName, string instrument, string difficulty)
-        // {
-        //     SongName = songName;
-        //     Instrument = instrument;
-        //     Difficulty = difficulty;
-        //     Notes = new List<ChartNote>();
-        // }
 
         public Chart(string songName)
         {

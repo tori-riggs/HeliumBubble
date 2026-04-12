@@ -3,9 +3,9 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using MainMenu;
 using NUnit.Framework;
 using UnityEngine;
-using UnityEngine.Android;
 using UnityEngine.Serialization;
 
 namespace RhythmGameAssets.Scripts
@@ -21,78 +21,64 @@ namespace RhythmGameAssets.Scripts
             DRUMS,
             KEYS1,
             KEYS2,
+            KEYBOARD,
             VOCALS,
+            DOUBLERHYTHM,
+            DOUBLEBASS,
             SINGLE // parsing purposes
         }
         private enum Difficulties
         {
             EASY,
-            MEDIUM, 
+            MEDIUM,
             HARD,
             EXPERT // will be unused in our version but just there for parsing purposes
         }
 
-        // private enum NoteType
-        // {
-        //     LEFT, // 1
-        //     UP, // 2
-        //     DOWN, // 3
-        //     RIGHT // 4
-        // }
-        // private string[] _noteType = {"LEFT", "UP", "DOWN", "RIGHT"}; 
         // Directory of all songs
         [SerializeField] private string songsDir = @"Assets/RhythmGameAssets/Resources/Songs";
         [SerializeField] private string chartFile = @"notes.chart"; // notes.chart file name
         [SerializeField] private string chartPath;
-        [SerializeField] public string selectedSongName; // Selected song
-        // [SerializeField] public Song selectedSong = new Song(); // Selected song
+
+        // [SerializeField] public string selectedSongName; // Selected song
         // TODO audio should be stored alongside the files
         [SerializeField] private string audioPath;
-
-        // public string Difficulty { get; private set; }
-        // public string Instrument { get; private set; }
-        // Note: might change in the middle of the song!
-        // public int TimeSignature { get; private set; }
-        // <Position> = B <Tempo>
-        // public float BPM { get; private set; } // tempo
         private int _noteCount = 0;
-        public List<ChartNote> Notes = new();
+        // public ChartParser Instance { get; private set; }        
         
-        // Temporary CurrentChart field.
-        public Song CurrentSong { get; private set; }
-        public Chart CurrentChart { get; private set; }
-
-        // String: Section, Array: [start, end]
-    
         // Start is called once before the first execution of Update after the MonoBehaviour is created
-        void Awake()
+        void Start()
         {
-            // Alternative: ToLower().FirstCharacterToUpper()
-            // Difficulty = nameof(Difficulties.HARD); // default difficulty
-            // Instrument = nameof(Instruments.GUITAR1); // default instrument
-            
+            foreach (var s in SongManager.Instance.SongList)
+            {
+                ParseCharts(s.Value); // Parse charts for the song
+            }
+        }
+        
+        private void ParseCharts(Song song) {
+            var selectedSongName = song.Name; // get song name
             // Get full path of the Songs directory
             songsDir = Path.GetFullPath(songsDir);
-            // Songs/<song_name>/notes.chart
             // TODO: Support song selection
-            var selectedDir = TestChartParser(); // testing
+            // var selectedDir = TestChartParser(); // testing
+            var selectedDir = Path.Join(songsDir, selectedSongName);
             // Get the file path of the notes.chart file
-            chartPath = Path.Join(selectedDir, chartFile);
-            // /Users/nyla/Github Projects/HeliumBubbleRhythmGame/Assets/RythmnGameAssets/Resources/Songs/notes.chart
+            chartPath = Path.Join(selectedDir, chartFile); // Songs/<song_name>/notes.chart
+            // HeliumBubbleRhythmGame/Assets/RhythmGameAssets/Resources/Songs/notes.chart
             if (File.Exists(chartPath))
             {
                 Console.WriteLine("success");
             }
-            else {
-                Console.WriteLine("Specified file does not "+
+            else
+            {
+                Console.WriteLine("Specified file does not " +
                                   "exist in the current directory.");
-                // TODO throw error
+                throw new FileNotFoundException(chartPath);
             }
-            CurrentSong = new Song(selectedSongName);
-            Chart chart = new Chart(selectedSongName);
+
+            var chart = new Chart(selectedSongName); // current chart
             try
             {
-                // using (FileStream fs = File.OpenRead(chartPath))
                 Boolean parsingMode = false;
                 Boolean syncTrackMode = false;
                 using (StreamReader reader = new StreamReader(chartPath))
@@ -100,13 +86,30 @@ namespace RhythmGameAssets.Scripts
                     string line;
                     while ((line = reader.ReadLine()) != null)
                     {
-                        if (line.StartsWith("{") || line.StartsWith("}"))
+                        if (line.StartsWith("{") || 
+                            (line.StartsWith("}") && !parsingMode))
                         {
                             continue;
                         }
-                        if (parsingMode)
+
+                        if (parsingMode) // parse chart notes
                         {
-                            ParseNotes(line.Trim(), chart);
+                            if (line.Trim().StartsWith("}"))
+                            {
+                                AddChartSong(song, chart); // add chart to song's chart dictionary
+                                chart = new Chart(selectedSongName); // new chart instance
+                                parsingMode = false;
+                                _noteCount = 0; // reset note count/id
+                            }
+                            else
+                            {
+                                ParseNotes(line.Trim(), chart);
+                            }
+                        }
+                        else if (line.Trim().StartsWith("Off"))
+                        {
+                            string[] offsetLine = line.Trim().Split(' ');
+                            chart.Offset = float.Parse(offsetLine[2]);
                         }
                         else if (syncTrackMode)
                         {
@@ -118,13 +121,13 @@ namespace RhythmGameAssets.Scripts
                             {
                                 throw new IOException("Time Signature or BPM expected.");
                             }
+
                             lineSplit = line.Trim().Split(' ');
                             ParseSyncTrack(lineSplit, chart); // get BPM
-                            if ((line = reader.ReadLine()) != null 
-                                    && line.StartsWith("}"))
+                            if ((line = reader.ReadLine()) != null
+                                && line.StartsWith("}"))
                                 syncTrackMode = false; // turn off SyncTrack parsing
                         }
-                        // if (!parsingMode && line.StartsWith("Offset: "))
                         else if (line.StartsWith("["))
                         {
                             if (line.Equals("[SyncTrack]"))
@@ -135,26 +138,22 @@ namespace RhythmGameAssets.Scripts
                                 // Defaults to 2 (x/4) if unspecified
                                 syncTrackMode = true;
                             }
-                            else
+                            else // Charting part
                             {
                                 // Code to remove the empty entries by CBinet:
                                 // https://stackoverflow.com/a/44868165/16776633
-                                string[] header = Regex.Split(line, 
+                                string[] header = Regex.Split(line,
                                     @"([A-Z][^A-Z\]]+)").Where(s => s != string.Empty).ToArray();
-                                if (Enum.IsDefined(typeof(Difficulties), header[1].ToUpper()) 
+                                // Check which chart the notes are for
+                                if (Enum.IsDefined(typeof(Difficulties), header[1].ToUpper())
                                     && Enum.IsDefined(typeof(Instruments), header[2].ToUpper()))
                                 {
-                                    // TODO getters and setters
                                     chart.Difficulty = header[1].ToUpper();
                                     chart.Instrument = header[2].ToUpper();
                                     reader.ReadLine(); // skip '{'
                                     parsingMode = true;
                                 }
                             }
-                        } else if (line.Trim().StartsWith("Off"))
-                        {
-                            string[] offsetLine = line.Trim().Split(' ');
-                            chart.Offset = float.Parse(offsetLine[2]);
                         }
                     }
                 }
@@ -163,13 +162,13 @@ namespace RhythmGameAssets.Scripts
             {
                 Console.WriteLine("The chart file could not be read: ");
                 Console.WriteLine(e.Message);
+                throw new IOException(e.Message);
             }
-            
-            AddChartSong(CurrentSong, chart);
-            CurrentChart = chart;
+
+            // AddChartSong(CurrentSong, chart); // add chart to song's chart dictionary
+            // CurrentChart = chart; // set current chart as the chart
         }
-        
-        
+
         // Update is called once per frame
         void Update()
         {
@@ -182,6 +181,7 @@ namespace RhythmGameAssets.Scripts
         /// Chart is edited directly.
         /// </summary>
         /// <param name="line"></param>
+        /// <param name="chart"></param>
         private void ParseSyncTrack(string[] line, Chart chart)
         {
             // TimeSignature = 4; // default
@@ -204,6 +204,7 @@ namespace RhythmGameAssets.Scripts
                     break;
             }
         }
+
         private void ParseNotes(string line, Chart chart)
         {
             // <Position> = N <Type> <Length>
@@ -243,6 +244,7 @@ namespace RhythmGameAssets.Scripts
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
+
                     ChartNote chartNote = new ChartNote(_noteCount++, noteDirection, position, length);
                     chart.Notes.Add(chartNote);
                     if (chart.Notes.Count > 1)
@@ -263,14 +265,23 @@ namespace RhythmGameAssets.Scripts
         {
             song.AddChart(chart.Difficulty, chart);
         }
-        
-        private string TestChartParser()
-        {
-            // TODO: Test ChartParser.AddChart
-            selectedSongName = "Mirage";
-            var selectedDir = Path.Join(songsDir, selectedSongName);
-            // var fullPath = Path.Join(selectedDir, chartFile);
-            return selectedDir;
-        }
+
+        // private string TestChartParser()
+        // {
+        //     // TODO: Test ChartParser.AddChart
+        //     selectedSongName = "Mirage";
+        //     var selectedDir = Path.Join(songsDir, selectedSongName);
+        //     // var fullPath = Path.Join(selectedDir, chartFile);
+        //     return selectedDir;
+        // }
+        //
+        // private string ParseCharts()
+        // {
+        //     foreach (var s in SongManager.Instance.SongList)
+        //     {
+        //         selectedSongName = s.Key;
+        //         
+        //     }
+        // }
     }
 }

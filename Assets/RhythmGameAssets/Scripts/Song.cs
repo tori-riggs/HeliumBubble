@@ -6,6 +6,7 @@ namespace RhythmGameAssets.Scripts
     public class Song
     {
         public string Name { get; set; }
+        public string Artist { get; set; }
 
         // Dictionary of all song charts
         // Key: Difficulty, Value: List of charts
@@ -14,6 +15,12 @@ namespace RhythmGameAssets.Scripts
         public Song(string name)
         {
             Name = name;
+        }
+        
+        public Song(string name, string artist)
+        {
+            Name = name;
+            Artist = artist;
         }
 
         /// <summary>
@@ -38,10 +45,10 @@ namespace RhythmGameAssets.Scripts
         public Chart GetChart(string difficulty, string instrument)
         {
             {
-                var chart = _charts[difficulty];
+                var chart = _charts[difficulty.ToUpper()];
                 foreach (var c in chart)
                 {
-                    if (c.Instrument == instrument)
+                    if (c.Instrument == instrument.ToUpper())
                         return c;
                 }
                 // TODO exception handling
