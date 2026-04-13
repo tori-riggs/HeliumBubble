@@ -21,7 +21,7 @@ namespace RhythmGameAssets.Scripts
 
         private bool _NeedsSync = true;
         private int _NumSyncTries = 0;
-        private readonly int MAX_SYNC_TRIES = 20;
+        private readonly int MAX_SYNC_TRIES = 100;
 
         public void Update()
         {
