@@ -55,7 +55,7 @@ namespace MainMenu
             var selectedSong = SongManager.Instance.SongList["Mirage"];
             Debug.Log("DefaultSelection Entered");
             var difficulty = "EXPERT";
-            var instrument = "SINGLE";
+            var instrument = "DRUMS";
             SavedSettings.Instance.SelectedSong = selectedSong;
             SavedSettings.Instance.Difficulty = difficulty;
             SavedSettings.Instance.Instrument = instrument;
