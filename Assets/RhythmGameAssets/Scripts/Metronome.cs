@@ -15,8 +15,6 @@ namespace RhythmGameAssets.Scripts
         [SerializeField] private TextMeshProUGUI songTimer;
 
         private double dspStartTime;
-        private double dspPauseStartTime;
-        private double totalPausedTime = 0.0;
         private bool isPlayingScheduled = false;
 
         private bool IsPaused = false;
@@ -42,7 +40,7 @@ namespace RhythmGameAssets.Scripts
         public void StartPlayback()
         {
             dspStartTime = AudioSettings.dspTime + startDelaySeconds;
-            audioSource.Stop();
+            audioSource.Stop();  
             audioSource.PlayScheduled(dspStartTime);
 
             isPlayingScheduled = true;
@@ -56,23 +54,18 @@ namespace RhythmGameAssets.Scripts
             if (!isPlayingScheduled) return 0.0;
             if (IsPaused) return audioSource.time;
 
-            double currentTime = AudioSettings.dspTime - dspStartTime - totalPausedTime;
+            double currentTime = AudioSettings.dspTime - dspStartTime;
             return Mathf.Max(0f, (float) currentTime);
         }
 
         public void PausePlayback()
         {
-            dspPauseStartTime = AudioSettings.dspTime;
-
             audioSource.Pause();
             IsPaused = true;
         }
 
         private void UnpausePlayback()
         {
-            double timePaused = AudioSettings.dspTime - dspPauseStartTime;
-            totalPausedTime += timePaused;
-
             audioSource.UnPause();
             IsPaused = false;
             _NeedsSync = true;
@@ -108,9 +101,10 @@ namespace RhythmGameAssets.Scripts
             _NeedsSync = delay > SONG_DIFF_THRESHOLD;
 
             // skip to server time if we are too far ahead/behind
-            //Debug.Log("Calculated server time: " + serverTime);
-            //Debug.Log("Client time: " + clientTime);
-            //Debug.Log("Delay: " + delay);
+            Debug.Log("Calculated server time: " + serverTime);
+            Debug.Log("Client time: " + clientTime);
+            Debug.Log("Delay: " + delay);
+            dspStartTime = AudioSettings.dspTime - serverTime;
             audioSource.time = serverTime;
 
             _NumSyncTries++;
