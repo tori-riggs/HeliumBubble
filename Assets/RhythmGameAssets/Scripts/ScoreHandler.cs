@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using MainMenu;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -7,6 +9,8 @@ namespace RhythmGameAssets.Scripts
 {
     public class ScoreHandler : MonoBehaviour
     {
+        private enum Difficulty { Easy, Medium, Expert }
+
         // Timing windows
         [SerializeField] private int perfectMargin = 20; // ±20 ms
         [SerializeField] private int greatMargin = 50; // ±50 ms
@@ -27,6 +31,9 @@ namespace RhythmGameAssets.Scripts
         private float _CurrentHitScore = 0;
 
         private readonly int HIT_COUNT_INTERVAL = 10;
+        private const int DIFFICULTY_WINDOW = 12;
+        private Queue<float> _recentNoteScores = new Queue<float>();
+        private Difficulty _currentDifficulty = Difficulty.Easy;
         
         // TODO input delay stuff???
         public int Score { get; private set; }
@@ -36,32 +43,38 @@ namespace RhythmGameAssets.Scripts
             // x ms early or x ms late
             double delay = Math.Abs(hitTiming);
 
+            float noteAccuracy;
             if (delay <= perfectMargin)
             {
                 hitNotifText.text = "Perfect!";
                 hitNotif.SetActive(true);
                 Score += perfectScore;
                 _CurrentHitScore += 1f;
+                noteAccuracy = 1.0f;
             } else if (delay <= greatMargin)
             {
                 hitNotifText.text = "Great!";
                 hitNotif.SetActive(true);
                 Score += greatScore;
                 _CurrentHitScore += 0.9f;
+                noteAccuracy = 0.9f;
             } else if (delay <= goodMargin)
             {
                 hitNotifText.text = "Good!";
                 hitNotif.SetActive(true);
                 Score += goodScore;
                 _CurrentHitScore += 0.85f;
+                noteAccuracy = 0.85f;
             } else
             {
                 hitNotifText.text = "Miss!";
                 hitNotif.SetActive(true);
+                noteAccuracy = 0.0f;
             }
 
             _TotalNoteCount++;
 
+            CheckForDifficultyAdjust(noteAccuracy);
             CheckForInstrumentAdjust();
 
             communicator.SendScorePacket(Score);
@@ -75,6 +88,7 @@ namespace RhythmGameAssets.Scripts
             
             _TotalNoteCount++;
 
+            CheckForDifficultyAdjust(0.0f);
             CheckForInstrumentAdjust();
         }
 
@@ -83,11 +97,41 @@ namespace RhythmGameAssets.Scripts
         // Does not increment note count; the head hit already counted this note.
         public void HoldNoteScoring(float heldFraction)
         {
-            int holdBonus = Mathf.RoundToInt(goodScore * heldFraction);
+            var holdBonus = Mathf.RoundToInt(goodScore * heldFraction);
             Score += holdBonus;
 
             communicator.SendScorePacket(Score);
             scoreText.text = Score.ToString();
+        }
+        
+        private void CheckForDifficultyAdjust(float noteScore)
+        {
+            _recentNoteScores.Enqueue(noteScore);
+            if (_recentNoteScores.Count > DIFFICULTY_WINDOW)
+                _recentNoteScores.Dequeue();
+
+            if (_recentNoteScores.Count < DIFFICULTY_WINDOW) return;
+
+            var sum = 0f;
+            foreach (var s in _recentNoteScores) sum += s;
+            var accuracy = sum / DIFFICULTY_WINDOW;
+
+            switch (accuracy)
+            {
+                case > 0.8f when _currentDifficulty < Difficulty.Expert:
+                    _currentDifficulty++;
+                    _recentNoteScores.Clear();
+                    break;
+                case < 0.5f when _currentDifficulty > Difficulty.Easy:
+                    _currentDifficulty--;
+                    _recentNoteScores.Clear();
+                    break;
+            }
+        }
+
+        public string GetCurrentDifficulty()
+        {
+            return _currentDifficulty.ToString();
         }
 
         private void CheckForInstrumentAdjust()
@@ -110,6 +154,11 @@ namespace RhythmGameAssets.Scripts
         {
             hitNotif.SetActive(false);
             Score = 0;
+                        
+            var difficulty = SavedSettings.Instance.Difficulty;
+            difficultyText.text = difficulty;
+            if (!Enum.TryParse(difficulty, ignoreCase: true, out _currentDifficulty))
+                _currentDifficulty = Difficulty.Easy;
         }
 
         private void Update()

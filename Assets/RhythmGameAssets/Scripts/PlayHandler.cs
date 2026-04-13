@@ -71,11 +71,9 @@ namespace RhythmGameAssets.Scripts
                 _nextNoteIndex = 0;
             }
             
-            //temp testing function
-            if (_chart.Difficulty != "Medium" && metronome.GetPlaybackTime() > 20)
-            {
-                _chart = SavedSettings.Instance.SelectedSong.GetChart("Medium", "Drums");
-            }
+            var targetDifficulty = _scoreHandler.GetCurrentDifficulty();
+            if (_chart.Difficulty != targetDifficulty.ToUpper())
+                SwapChart(targetDifficulty);
             
             if (Keyboard.current.aKey.wasPressedThisFrame) leftTarget.PlayPop();
             if (Keyboard.current.wKey.wasPressedThisFrame) upTarget.PlayPop();
@@ -213,6 +211,37 @@ namespace RhythmGameAssets.Scripts
                 _heldNoteIds.Remove(dir);
                 _heldNoteStartSongTime.Remove(dir);
             }
+        }
+
+        private void SwapChart(string newDifficulty)
+        {
+            var instrument = SavedSettings.Instance.Instrument;
+            var newChart = SavedSettings.Instance.SelectedSong.GetChart(newDifficulty, instrument);
+            if (newChart == null) return;
+
+            foreach (var note in activeNoteIds)
+            {
+                var behavior = notePool.GetActiveNoteById(note.ID);
+                if (behavior != null) notePool.Release(behavior);
+            }
+            activeNoteIds.Clear();
+
+            foreach (var kvp in _heldNoteIds)
+            {
+                var behavior = notePool.GetActiveNoteById(kvp.Value.ID);
+                if (behavior != null) notePool.Release(behavior);
+            }
+            _heldNoteIds.Clear();
+            _heldNoteStartSongTime.Clear();
+
+            _chart = newChart;
+
+            // Seek to the first note that hasn't passed the spawn window yet
+            var songTime = metronome.GetPlaybackTime() * 1000.0;
+            _nextNoteIndex = 0;
+            while (_nextNoteIndex < _chart.Notes.Count - 1 &&
+                   GetNoteTime(_chart.Notes[_nextNoteIndex]) < songTime - notePool.timeOnScreen * 1000.0)
+                _nextNoteIndex++;
         }
 
         private double GetNoteTime(ChartNote note)
