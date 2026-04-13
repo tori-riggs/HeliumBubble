@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MainMenu;
 using NUnit.Framework;
 using UnityEngine;
@@ -34,6 +35,14 @@ namespace RhythmGameAssets.Scripts
         private Dictionary<NoteDirection, int> _heldNoteIds = new Dictionary<NoteDirection, int>();
         // Hold-note tracking: direction → song time (ms) when the hold started
         private Dictionary<NoteDirection, double> _heldNoteStartSongTime = new Dictionary<NoteDirection, double>();
+        
+        private Dictionary<NoteDirection, bool> _inputStates = new Dictionary<NoteDirection, bool>
+        {
+            { NoteDirection.Left, false },
+            { NoteDirection.Up, false },
+            { NoteDirection.Down, false },
+            { NoteDirection.Right, false }
+        };
 
         private Chart _chart; // current chart
         
@@ -49,14 +58,22 @@ namespace RhythmGameAssets.Scripts
             {
                 Debug.Log(note);
             }
+            
+            metronome.StartPlayback();
         }
 
         private void Update()
         {
+            if (Keyboard.current.aKey.wasPressedThisFrame) leftTarget.PlayPop();
+            if (Keyboard.current.wKey.wasPressedThisFrame) upTarget.PlayPop();
+            if (Keyboard.current.sKey.wasPressedThisFrame) downTarget.PlayPop();
+            if (Keyboard.current.dKey.wasPressedThisFrame) rightTarget.PlayPop();
+            
+            if (_nextNoteIndex >= _chart.Notes.Count - 1) return;
+            
             var songTime = metronome.GetPlaybackTime() * 1000.0;
 
-            while (_nextNoteIndex < _chart.Notes.Count &&
-                   songTime + (notePool.timeOnScreen * 1000.0) >= GetNoteTime(_nextNoteIndex))
+            while (songTime + (notePool.timeOnScreen * 1000.0) >= GetNoteTime(_nextNoteIndex))
             {
                 activeNoteIds.Enqueue(_nextNoteIndex);
                 var chartNote = _chart.Notes[_nextNoteIndex];
@@ -68,26 +85,6 @@ namespace RhythmGameAssets.Scripts
             // Update any notes currently being held
             UpdateHeldNotes(songTime);
 
-            if (Keyboard.current.aKey.wasPressedThisFrame)
-            {
-                leftTarget.PlayPop();
-            }
-
-            if (Keyboard.current.wKey.wasPressedThisFrame)
-            {
-                upTarget.PlayPop();
-            }
-
-            if (Keyboard.current.sKey.wasPressedThisFrame)
-            {
-                downTarget.PlayPop();
-            }
-
-            if (Keyboard.current.dKey.wasPressedThisFrame)
-            {
-                rightTarget.PlayPop();
-            }
-
             if (activeNoteIds.Count == 0)
             {
                 return;
@@ -97,7 +94,9 @@ namespace RhythmGameAssets.Scripts
             // Check if that key was pressed. If not, wrong key was pressed so missed note
             // If key was pressed, log that hit with the delay
 
-            if (songTime - 100.0 >= GetActiveNoteTime())
+            if (activeNoteIds.Count == 0) return;
+            double nextNoteTime = GetActiveNoteTime();
+            while (songTime - 100.0 >= nextNoteTime)
             {
                 var id = activeNoteIds.Dequeue();
                 notePool.Release(notePool.GetActiveNoteById(id));
@@ -105,23 +104,35 @@ namespace RhythmGameAssets.Scripts
                 _scoreHandler.hitNotif.SetActive(true);
                 // TODO: disappear after a while
                 _scoreHandler.NoteMissed();
+        
+                if (activeNoteIds.Count == 0) return;
+        
+                nextNoteTime = GetActiveNoteTime();
             }
-            
-            
+        
             if (Keyboard.current != null &&
                 (Keyboard.current.aKey.wasPressedThisFrame ||
                  Keyboard.current.wKey.wasPressedThisFrame ||
                  Keyboard.current.sKey.wasPressedThisFrame ||
                  Keyboard.current.dKey.wasPressedThisFrame))
             {
-                var timeToNextNote = GetActiveNoteTime();
-                if (songTime + 150.0 >= timeToNextNote)
+                // Save all input states 
+                _inputStates[NoteDirection.Left]  = Keyboard.current.aKey.wasPressedThisFrame;
+                _inputStates[NoteDirection.Up]    = Keyboard.current.wKey.wasPressedThisFrame;
+                _inputStates[NoteDirection.Down]  = Keyboard.current.sKey.wasPressedThisFrame;
+                _inputStates[NoteDirection.Right] = Keyboard.current.dKey.wasPressedThisFrame;
+
+                // Loop until either all inputs are handled or no more hittable notes
+                double timeToNextNote = GetActiveNoteTime();
+                while (songTime + 150.0 >= timeToNextNote && _inputStates.Values.Any(state => state))
                 {
                     var id = activeNoteIds.Dequeue();
                     var note = _chart.Notes[id];
 
                     if (KeyboardPressFromDirection(note.Direction))
                     {
+                        _inputStates[note.Direction] = false;
+                        
                         _scoreHandler.NoteHitScoring(songTime - timeToNextNote);
 
                         if (note.Length > 0) // hold note: freeze head and begin tracking the tail
@@ -141,6 +152,10 @@ namespace RhythmGameAssets.Scripts
                     {
                         notePool.Release(notePool.GetActiveNoteById(id));
                     }
+                    
+                    if (activeNoteIds.Count == 0) return;
+
+                    timeToNextNote = GetActiveNoteTime();
                 }
             }
 
