@@ -127,6 +127,8 @@ namespace RhythmGameAssets.Scripts
                     _recentNoteScores.Clear();
                     break;
             }
+
+            difficultyText.text = GetCurrentDifficulty();
         }
 
         public string GetCurrentDifficulty()
