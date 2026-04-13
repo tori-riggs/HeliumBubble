@@ -19,6 +19,7 @@ namespace RhythmGameAssets.Scripts
         [SerializeField] private Communicator communicator;
 
         public TextMeshProUGUI scoreText;
+        public TextMeshProUGUI difficultyText;
         public GameObject hitNotif;
         public TextMeshProUGUI hitNotifText;
 
@@ -69,6 +70,9 @@ namespace RhythmGameAssets.Scripts
 
         public void NoteMissed()
         {
+            hitNotifText.text = "Miss!";
+            hitNotif.SetActive(true);
+            
             _TotalNoteCount++;
 
             CheckForInstrumentAdjust();

@@ -45,6 +45,7 @@ namespace RhythmGameAssets.Scripts
         };
 
         private Chart _chart; // current chart
+        private double _lastMetronomeTime = 0;
         
         private double DelaySeconds => delay / 1000.0;
 
@@ -64,6 +65,18 @@ namespace RhythmGameAssets.Scripts
 
         private void Update()
         {
+            // Detecting a restart of song
+            if (_lastMetronomeTime - 3 > metronome.GetPlaybackTime())
+            {
+                _nextNoteIndex = 0;
+            }
+            
+            //temp testing function
+            if (_chart.Difficulty != "Medium" && metronome.GetPlaybackTime() > 20)
+            {
+                _chart = SavedSettings.Instance.SelectedSong.GetChart("Medium", "Drums");
+            }
+            
             if (Keyboard.current.aKey.wasPressedThisFrame) leftTarget.PlayPop();
             if (Keyboard.current.wKey.wasPressedThisFrame) upTarget.PlayPop();
             if (Keyboard.current.sKey.wasPressedThisFrame) downTarget.PlayPop();
@@ -100,8 +113,6 @@ namespace RhythmGameAssets.Scripts
             {
                 var note = activeNoteIds.Dequeue();
                 notePool.Release(notePool.GetActiveNoteById(note.ID));
-                _scoreHandler.hitNotifText.text = "Miss!";
-                _scoreHandler.hitNotif.SetActive(true);
                 // TODO: disappear after a while
                 _scoreHandler.NoteMissed();
         
@@ -145,11 +156,14 @@ namespace RhythmGameAssets.Scripts
                         else
                         {
                             notePool.Release(notePool.GetActiveNoteById(note.ID));
+                            _scoreHandler.NoteMissed();
+
                         }
                     }
                     else
                     {
                         notePool.Release(notePool.GetActiveNoteById(note.ID));
+                        _scoreHandler.NoteMissed();
                     }
                     
                     if (activeNoteIds.Count == 0) return;
