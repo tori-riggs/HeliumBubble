@@ -230,10 +230,12 @@ namespace RhythmGameAssets.Scripts
 
         async void SendPingPacket()
         {
-            PingPacket pingPacket = new(-1, SelectedInstrument);
-            _lastPingSent = pingPacket.TimeSent;
-            await _websocket.SendText(pingPacket.ToJSON());
-
+            if (_websocket.State == WebSocketState.Open)
+            {
+                PingPacket pingPacket = new(-1, SelectedInstrument);
+                _lastPingSent = pingPacket.TimeSent;
+                await _websocket.SendText(pingPacket.ToJSON());
+            }
         }
 
         void CalculateServerLatency(PingPacket packet)
