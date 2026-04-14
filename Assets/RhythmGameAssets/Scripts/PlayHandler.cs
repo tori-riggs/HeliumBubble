@@ -60,7 +60,7 @@ namespace RhythmGameAssets.Scripts
                 Debug.Log(note);
             }
             
-            metronome.StartPlayback();
+            // metronome.StartPlayback();
         }
 
         private void Update()

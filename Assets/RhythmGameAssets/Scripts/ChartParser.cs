@@ -234,13 +234,13 @@ namespace RhythmGameAssets.Scripts
                             noteDirection = NoteDirection.Left;
                             break;
                         case 1:
-                            noteDirection = NoteDirection.Up;
+                            noteDirection = NoteDirection.Left;
                             break;
                         case 2:
-                            noteDirection = NoteDirection.Down;
+                            noteDirection = NoteDirection.Up;
                             break;
                         case 3:
-                            noteDirection = NoteDirection.Right;
+                            noteDirection = NoteDirection.Down;
                             break;
                         // CloneHero has 5 lanes so just make the 4th type right
                         case 4:
