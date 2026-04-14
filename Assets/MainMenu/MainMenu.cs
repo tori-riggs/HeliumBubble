@@ -7,7 +7,6 @@ using System.IO;
 using TMPro;
 using Unity.VectorGraphics;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 using Scene = Unity.VectorGraphics.Scene;
 
 namespace MainMenu
@@ -60,8 +59,7 @@ namespace MainMenu
             var selectedSong = SongManager.Instance.SongList["Mirage"];
             Debug.Log("DefaultSelection Entered");
             var difficulty = "EXPERT";
-            // var instrument = "SINGLE";
-            var instrument = "DRUMS";
+            var instrument = "SINGLE";
             SavedSettings.Instance.SelectedSong = selectedSong;
             SavedSettings.Instance.Difficulty = difficulty;
             SavedSettings.Instance.Instrument = instrument;

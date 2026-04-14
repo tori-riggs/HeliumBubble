@@ -27,7 +27,7 @@ namespace RhythmGameAssets.Scripts
             DOUBLEBASS,
             SINGLE // parsing purposes
         }
-
+        
         public enum Difficulties
         {
             EASY,
@@ -98,7 +98,10 @@ namespace RhythmGameAssets.Scripts
                             if (line.Trim().StartsWith("}"))
                             {
                                 AddChartSong(song, chart); // add chart to song's chart dictionary
-                                chart = new Chart(selectedSongName); // new chart instance
+                                var nextChart = new Chart(selectedSongName); // new chart instance
+                                nextChart.BPM = chart.BPM;
+                                nextChart.TimeSignature = chart.TimeSignature;
+                                chart = nextChart;
                                 parsingMode = false;
                                 _noteCount = 0; // reset note count/id
                             }
