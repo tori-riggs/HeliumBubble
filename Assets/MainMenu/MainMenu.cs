@@ -7,6 +7,7 @@ using System.IO;
 using TMPro;
 using Unity.VectorGraphics;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using Scene = Unity.VectorGraphics.Scene;
 
 namespace MainMenu
@@ -15,6 +16,10 @@ namespace MainMenu
     {
         // public SavedSettings SavedSettings; // song settings
         public ChartParser ChartParser;
+        public GameObject difficultyButton;
+        public TextMeshProUGUI difficultyText;
+        public GameObject instrumentButton;
+        public TextMeshProUGUI instrumentText;
 
         // private SongManager _songManager;
         // TODO update chart parser
@@ -41,7 +46,7 @@ namespace MainMenu
                 throw new NullReferenceException("SongManager is null");
             DefaultSelection(); // TODO remove debug function
             // Debug.Log($"SavedSettings Difficulty: {SavedSettings.Instance.Difficulty}");
-            // ChartParser = FindFirstObjectByType<ChartParser>();
+            ChartParser = FindFirstObjectByType<ChartParser>();
             if (ChartParser.didAwake)
                 Debug.Log("ChartParser did wake.");
             Debug.Log("Success.");
@@ -55,11 +60,21 @@ namespace MainMenu
             var selectedSong = SongManager.Instance.SongList["Mirage"];
             Debug.Log("DefaultSelection Entered");
             var difficulty = "EXPERT";
-            var instrument = "SINGLE";
+            // var instrument = "SINGLE";
+            var instrument = "DRUMS";
             SavedSettings.Instance.SelectedSong = selectedSong;
             SavedSettings.Instance.Difficulty = difficulty;
             SavedSettings.Instance.Instrument = instrument;
+            // difficultyText.text = SavedSettings.Instance.Difficulty; // update text
+            // instrumentText.text = SavedSettings.Instance.Instrument; // update text
             // SavedSettings.SelectedChart = selectedSong.GetChart(difficulty, instrument);
+        }
+
+        public void SetDifficulty(int val)
+        {
+            string[] difficulties = { "EASY", "NORMAL", "HARD", "EXPERT" };
+            int size = difficulties.Length;
+            
         }
     }
 }

@@ -28,7 +28,7 @@ namespace RhythmGameAssets.Scripts
             SINGLE // parsing purposes
         }
 
-        private enum Difficulties
+        public enum Difficulties
         {
             EASY,
             MEDIUM,
