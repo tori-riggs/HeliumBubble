@@ -476,9 +476,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a3c728054fafda40836a1de0406ec7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Networking
-  _metronome: {fileID: 0}
+  _metronome: {fileID: 1900708973}
   WebsocketIP: localhost:8080
-  SelectedInstrument: 0
+  SelectedInstrument: 1
 --- !u!4 &422211542
 Transform:
   m_ObjectHideFlags: 0
@@ -2119,7 +2119,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Metronome
   audioSource: {fileID: 1900708972}
-  startDelaySeconds: 4
+  startDelaySeconds: 0
   songTimer: {fileID: 905892114}
 --- !u!4 &1900708974
 Transform:
