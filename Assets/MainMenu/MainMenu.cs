@@ -19,6 +19,7 @@ namespace MainMenu
         public TextMeshProUGUI difficultyText;
         public GameObject instrumentButton;
         public TextMeshProUGUI instrumentText;
+        public TextMeshProUGUI error;
 
         // private SongManager _songManager;
         // TODO update chart parser
@@ -43,11 +44,13 @@ namespace MainMenu
             // SceneManager.LoadScene("Scenes/Startup");
             if (SongManager.Instance == null)
                 throw new NullReferenceException("SongManager is null");
+            // instrumentText.text = "Instrument";
+            // difficultyText.text = "Difficulty";
             DefaultSelection(); // TODO remove debug function
-            // Debug.Log($"SavedSettings Difficulty: {SavedSettings.Instance.Difficulty}");
             ChartParser = FindFirstObjectByType<ChartParser>();
             if (ChartParser.didAwake)
                 Debug.Log("ChartParser did wake.");
+            SavedSettings.Instance.SelectedSong.GetInstruments();
             Debug.Log("Success.");
         }
         

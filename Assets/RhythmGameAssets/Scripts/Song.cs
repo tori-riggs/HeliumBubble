@@ -7,10 +7,14 @@ namespace RhythmGameAssets.Scripts
     {
         public string Name { get; set; }
         public string Artist { get; set; }
+        public List<string> Instruments { get; private set; }
+        // public List<string[]> AvailableCharts { get; private set; }
+        // public Dictionary<string, string> AvailableCharts { get; private set; } // Difficulty: Instrument
 
         // Dictionary of all song charts
         // Key: Difficulty, Value: List of charts
         private Dictionary<string, List<Chart>> _charts = new();
+        // private Dictionary<string, Dictionary<string, Chart>> _charts = new(); // Difficulty: Instrument: Chart
 
         public Song(string name)
         {
@@ -21,6 +25,8 @@ namespace RhythmGameAssets.Scripts
         {
             Name = name;
             Artist = artist;
+            Instruments = new List<string>();
+            // AvailableCharts = new List<string[]>();
         }
 
         /// <summary>
@@ -34,6 +40,7 @@ namespace RhythmGameAssets.Scripts
             {
                 // Make new difficulty
                 _charts.Add(difficulty, new List<Chart>());
+                // _charts.Add(difficulty, new Dictionary<string, Chart>());
                 _charts[difficulty].Add(chart);
             }
             else
@@ -54,6 +61,33 @@ namespace RhythmGameAssets.Scripts
                 // TODO exception handling
                 return null;
             }
+        }
+
+        public List<string> GetInstruments()
+        {
+            // TODO error handling
+            foreach (var c in _charts.Values)
+            {
+                foreach (var i in c)
+                {
+                    if (!Instruments.Contains(i.Instrument))
+                        Instruments.Add(i.Instrument);
+                }
+            }
+            return Instruments;
+        }
+
+        public List<string> GetDifficulties(string instrument)
+        {
+            List<string> difficulties = new List<string>();
+            foreach (var d in _charts.Keys)
+            {
+                if (GetChart(d, instrument) != null)
+                {
+                    difficulties.Add(d);
+                }
+            }
+            return difficulties;
         }
     }
 }

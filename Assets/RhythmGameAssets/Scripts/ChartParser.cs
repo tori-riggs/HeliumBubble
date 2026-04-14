@@ -154,6 +154,8 @@ namespace RhythmGameAssets.Scripts
                                 {
                                     chart.Difficulty = header[1].ToUpper();
                                     chart.Instrument = header[2].ToUpper();
+                                    // string[] pair = { chart.Difficulty, chart.Instrument };
+                                    // song.AvailableCharts.Add(pair);
                                     reader.ReadLine(); // skip '{'
                                     parsingMode = true;
                                 }
