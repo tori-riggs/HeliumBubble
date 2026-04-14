@@ -38,8 +38,8 @@ namespace RhythmGameAssets.Scripts
         // One buffer per direction
         private readonly Dictionary<NoteDirection, Stack<NoteBehavior>> _buffers = new();
 
-        // Active notes by NoteId (lookup by ID)
-        private readonly Dictionary<int, NoteBehavior> _activeById = new();
+        // Active notes keyed by ChartNote reference
+        private readonly Dictionary<ChartNote, NoteBehavior> _activeByNote = new();
 
         private void Awake()
         {
@@ -104,39 +104,39 @@ namespace RhythmGameAssets.Scripts
         }
 
         /// <summary>
-        /// Spawns a note with a given NoteId + direction.
+        /// Spawns a note for the given ChartNote.
         /// Pass holdDurationSeconds > 0 for hold notes.
         /// </summary>
-        public NoteBehavior SpawnNote(int noteId, NoteDirection dir, float holdDurationSeconds = 0f)
+        public NoteBehavior SpawnNote(ChartNote chartNote, float holdDurationSeconds = 0f)
         {
-            if (_activeById.TryGetValue(noteId, out var existing))
+            if (_activeByNote.TryGetValue(chartNote, out var existing))
             {
-                Debug.LogWarning($"SpawnNote called with NoteId {noteId}, but that ID is already active. Returning existing note.");
+                Debug.LogWarning($"SpawnNote called for ChartNote ID {chartNote.ID}, but it is already active. Returning existing note.");
                 return existing;
             }
 
-            var note = GetFromBufferOrGrow(dir);
+            var behavior = GetFromBufferOrGrow(chartNote.Direction);
 
-            note.gameObject.SetActive(true);
-            note.Pool_Initialize(this, noteId, dir);
+            behavior.gameObject.SetActive(true);
+            behavior.Pool_Initialize(this, chartNote);
 
-            _activeById[noteId] = note;
-        
-            var position = GetTarget(dir).transform.position;
-            note.transform.position = position + _spawnPoint;
+            _activeByNote[chartNote] = behavior;
 
-            note.Initialize(position, _noteSpeed, holdDurationSeconds);
+            var position = GetTarget(chartNote.Direction).transform.position;
+            behavior.transform.position = position + _spawnPoint;
 
-            return note;
+            behavior.Initialize(position, _noteSpeed, holdDurationSeconds);
+
+            return behavior;
         }
 
         /// <summary>
-        /// Returns a reference to the ACTIVE note with that ID, else null.
+        /// Returns a reference to the ACTIVE NoteBehavior for the given ChartNote, else null.
         /// </summary>
-        public NoteBehavior GetActiveNoteById(int noteId)
+        public NoteBehavior GetActiveNote(ChartNote chartNote)
         {
-            _activeById.TryGetValue(noteId, out var note);
-            return note;
+            _activeByNote.TryGetValue(chartNote, out var behavior);
+            return behavior;
         }
 
         /// <summary>
@@ -144,11 +144,11 @@ namespace RhythmGameAssets.Scripts
         /// </summary>
         public void Release(NoteBehavior note)
         {
-            var id = note.NoteId;
+            var chartNote = note.Note;
             var dir = note.Direction;
 
-            if (id != -1 && _activeById.TryGetValue(id, out var tracked) && tracked == note)
-                _activeById.Remove(id);
+            if (chartNote != null && _activeByNote.TryGetValue(chartNote, out var tracked) && tracked == note)
+                _activeByNote.Remove(chartNote);
 
             note.ResetForPool();
             ReturnToBuffer(note, dir);

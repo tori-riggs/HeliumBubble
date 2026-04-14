@@ -89,7 +89,7 @@ namespace RhythmGameAssets.Scripts
                 var chartNote = _chart.Notes[_nextNoteIndex];
                 activeNoteIds.Enqueue(chartNote);
                 float holdDuration = (float)(GetNoteLengthMs(chartNote) / 1000.0);
-                notePool.SpawnNote(chartNote.ID, chartNote.Direction, holdDuration);
+                notePool.SpawnNote(chartNote, holdDuration);
                 _nextNoteIndex++;
             }
 
@@ -110,7 +110,7 @@ namespace RhythmGameAssets.Scripts
             while (songTime - 100.0 >= nextNoteTime)
             {
                 var note = activeNoteIds.Dequeue();
-                notePool.Release(notePool.GetActiveNoteById(note.ID));
+                notePool.Release(notePool.GetActiveNote(note));
                 // TODO: disappear after a while
                 _scoreHandler.NoteMissed();
         
@@ -145,7 +145,7 @@ namespace RhythmGameAssets.Scripts
 
                         if (note.Length > 0) // hold note: freeze head and begin tracking the tail
                         {
-                            var noteBehavior = notePool.GetActiveNoteById(note.ID);
+                            var noteBehavior = notePool.GetActiveNote(note);
                             noteBehavior.StartHold();
                             _heldNoteIds[note.Direction] = note;
                             _heldNoteStartSongTime[note.Direction] = songTime;
@@ -153,14 +153,12 @@ namespace RhythmGameAssets.Scripts
                         }
                         else
                         {
-                            notePool.Release(notePool.GetActiveNoteById(note.ID));
-                            _scoreHandler.NoteMissed();
-
+                            notePool.Release(notePool.GetActiveNote(note));
                         }
                     }
                     else
                     {
-                        notePool.Release(notePool.GetActiveNoteById(note.ID));
+                        notePool.Release(notePool.GetActiveNote(note));
                         _scoreHandler.NoteMissed();
                     }
                     
@@ -182,7 +180,7 @@ namespace RhythmGameAssets.Scripts
                 NoteDirection dir = kvp.Key;
                 ChartNote chartNote = kvp.Value;
 
-                var noteBehavior = notePool.GetActiveNoteById(chartNote.ID);
+                var noteBehavior = notePool.GetActiveNote(chartNote);
                 if (noteBehavior == null) // already cleaned up somehow
                 {
                     toRelease.Add(dir);
@@ -216,31 +214,13 @@ namespace RhythmGameAssets.Scripts
         private void SwapChart(string newDifficulty)
         {
             var instrument = SavedSettings.Instance.Instrument;
-            var newChart = SavedSettings.Instance.SelectedSong.GetChart(newDifficulty, instrument);
-            if (newChart == null) return;
-
-            foreach (var note in activeNoteIds)
-            {
-                var behavior = notePool.GetActiveNoteById(note.ID);
-                if (behavior != null) notePool.Release(behavior);
-            }
-            activeNoteIds.Clear();
-
-            foreach (var kvp in _heldNoteIds)
-            {
-                var behavior = notePool.GetActiveNoteById(kvp.Value.ID);
-                if (behavior != null) notePool.Release(behavior);
-            }
-            _heldNoteIds.Clear();
-            _heldNoteStartSongTime.Clear();
-
-            _chart = newChart;
+            _chart = SavedSettings.Instance.SelectedSong.GetChart(newDifficulty, instrument);
 
             // Seek to the first note that hasn't passed the spawn window yet
             var songTime = metronome.GetPlaybackTime() * 1000.0;
             _nextNoteIndex = 0;
             while (_nextNoteIndex < _chart.Notes.Count - 1 &&
-                   GetNoteTime(_chart.Notes[_nextNoteIndex]) < songTime - notePool.timeOnScreen * 1000.0)
+                   GetNoteTime(_chart.Notes[_nextNoteIndex]) < songTime + notePool.timeOnScreen * 1000.0)
                 _nextNoteIndex++;
         }
 

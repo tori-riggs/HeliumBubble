@@ -19,7 +19,7 @@ namespace RhythmGameAssets.Scripts
         private float _tailHeight;      // world-unit height of a full tail
         private bool _isHeld = false;
 
-        public int NoteId { get; private set; } = -1;
+        public ChartNote Note { get; private set; }
         public NoteDirection Direction { get; private set; }
         public float HoldDurationSeconds { get; private set; }
         public bool IsHoldNote => HoldDurationSeconds > 0f;
@@ -27,11 +27,11 @@ namespace RhythmGameAssets.Scripts
         private NotePool _pool;
 
         // Called by NotePool right after the note is taken from the pool.
-        public void Pool_Initialize(NotePool pool, int noteId, NoteDirection direction)
+        public void Pool_Initialize(NotePool pool, ChartNote note)
         {
             _pool = pool;
-            NoteId = noteId;
-            Direction = direction;
+            Note = note;
+            Direction = note.Direction;
         }
 
         public void Initialize(Vector3 targetHitPoint, float moveSpeed, float holdDurationSeconds = 0f)
@@ -82,7 +82,7 @@ namespace RhythmGameAssets.Scripts
         // Pool uses this to clear state before returning to buffer
         public void ResetForPool()
         {
-            NoteId = -1;
+            Note = null;
             _isHeld = false;
             HoldDurationSeconds = 0f;
             if (tail != null) tail.gameObject.SetActive(false);
