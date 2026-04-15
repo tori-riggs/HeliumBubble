@@ -1,3 +1,4 @@
+using MainMenu;
 using NativeWebSocket;
 using Newtonsoft.Json;
 using System;
@@ -5,6 +6,14 @@ using UnityEngine;
 
 namespace RhythmGameAssets.Scripts
 {
+    public enum Instrument
+    {
+        BASS,
+        DRUMS,
+        GUITAR,
+        KEYS1,
+        KEYS2
+    }
     public enum Sender
     {
         CLIENT,
@@ -43,15 +52,6 @@ namespace RhythmGameAssets.Scripts
         {
             return JsonConvert.DeserializeObject<WebPacket>(jsonString);
         }
-    }
-
-    public enum Instrument
-    {
-        BASS,
-        DRUMS,
-        GUITAR,
-        KEYS1,
-        KEYS2
     }
 
     public class ConnectionPacket : WebPacket
@@ -181,6 +181,8 @@ namespace RhythmGameAssets.Scripts
 
         async void Start()
         {
+            SetSelectedInstrument();
+
             _websocket = new WebSocket("ws://" + WebsocketIP);
 
             _websocket.OnOpen += () => { SendConnectionPacket(); };
@@ -236,6 +238,20 @@ namespace RhythmGameAssets.Scripts
                 _lastPingSent = pingPacket.TimeSent;
                 await _websocket.SendText(pingPacket.ToJSON());
             }
+        }
+
+        void SetSelectedInstrument()
+        {
+            string instrument = SavedSettings.Instance.Instrument;
+
+            this.SelectedInstrument = instrument switch
+            {
+                "SINGLE" => Instrument.GUITAR,
+                "DRUMS" => Instrument.DRUMS,
+                "DOUBLEBASS" => Instrument.BASS,
+                "KEYBOARD" => Instrument.KEYS1,
+                _ => Instrument.BASS
+            };
         }
 
         void CalculateServerLatency(PingPacket packet)

@@ -30,7 +30,7 @@ namespace RhythmGameAssets.Scripts
         private int _TotalNoteCount = 0;
         private float _CurrentHitScore = 0;
 
-        private readonly int HIT_COUNT_INTERVAL = 10;
+        private readonly int HIT_COUNT_INTERVAL = 5;
         private const int DIFFICULTY_WINDOW = 12;
         private Queue<float> _recentNoteScores = new Queue<float>();
         private Difficulty _currentDifficulty = Difficulty.Easy;
