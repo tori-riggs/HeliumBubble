@@ -1,13 +1,13 @@
 using System;
 using UnityEngine;
-using Unity.UI;
+//using Unity.UI;
 using RhythmGameAssets.Scripts;
-using System.Collections.Generic;
-using System.IO;
+//using System.Collections.Generic;
+//using System.IO;
 using TMPro;
-using Unity.VectorGraphics;
-using UnityEngine.SceneManagement;
-using Scene = Unity.VectorGraphics.Scene;
+//using Unity.VectorGraphics;
+//using UnityEngine.SceneManagement;
+//using Scene = Unity.VectorGraphics.Scene;
 
 namespace MainMenu
 {
@@ -23,7 +23,7 @@ namespace MainMenu
 
         // private SongManager _songManager;
         // TODO update chart parser
-        [SerializeField] private string songsDir = @"Assets/RhythmGameAssets/Resources/Songs";
+        //[SerializeField] private string songsDir = @"Assets/RhythmGameAssets/Resources/Songs";
         // public Dictionary<string, Song> SongList { get; private set; }
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Start()

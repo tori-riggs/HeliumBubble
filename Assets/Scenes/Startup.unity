@@ -163,7 +163,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1b1281ac8be40d5b76392d950efcb58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenu.SongManager
-  _songsDir: Assets/RhythmGameAssets/Resources/Songs
+  _songsDir: Songs
 --- !u!1 &746031989
 GameObject:
   m_ObjectHideFlags: 0

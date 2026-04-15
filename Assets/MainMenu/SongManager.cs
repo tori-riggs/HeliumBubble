@@ -28,7 +28,7 @@ namespace MainMenu
         }
         private void CreateSongList()
         {
-            _songsDir = Path.GetFullPath(_songsDir);
+            _songsDir = Path.GetFullPath(Path.Combine(Application.streamingAssetsPath, _songsDir));
             var songs = Directory.GetDirectories(_songsDir);
             // Songs come from the Songs directory
             foreach (var s in songs)

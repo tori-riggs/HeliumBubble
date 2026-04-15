@@ -59,7 +59,7 @@ namespace RhythmGameAssets.Scripts
         private void ParseCharts(Song song) {
             var selectedSongName = song.Name; // get song name
             // Get full path of the Songs directory
-            songsDir = Path.GetFullPath(songsDir);
+            songsDir = Path.GetFullPath(Path.Combine(Application.streamingAssetsPath, songsDir));
             // TODO: Support song selection
             // var selectedDir = TestChartParser(); // testing
             var selectedDir = Path.Join(songsDir, selectedSongName);

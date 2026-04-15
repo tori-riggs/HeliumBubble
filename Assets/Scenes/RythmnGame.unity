@@ -269,7 +269,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd65943812d904a95a858495ef2eee46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RhythmGameAssets.Scripts.ChartParser
-  songsDir: Assets/RhythmGameAssets/Resources/Songs
+  songsDir: Songs
   chartFile: notes.chart
   chartPath: 
   audioPath: 
@@ -477,7 +477,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Networking
   _metronome: {fileID: 1900708973}
-  WebsocketIP: 129.21.72.37:8080
+  WebsocketIP: localhost:8080
   SelectedInstrument: 2
 --- !u!4 &422211542
 Transform:
@@ -1621,7 +1621,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1b1281ac8be40d5b76392d950efcb58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenu.SongManager
-  _songsDir: Assets/RhythmGameAssets/Resources/Songs
+  _songsDir: Songs
 --- !u!1 &1711249216
 GameObject:
   m_ObjectHideFlags: 0
