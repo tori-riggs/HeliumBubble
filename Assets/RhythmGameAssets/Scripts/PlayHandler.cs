@@ -70,7 +70,7 @@ namespace RhythmGameAssets.Scripts
 
             UpdateKeybinds();
             
-             metronome.StartPlayback();
+            //metronome.StartPlayback();
         }
 
         private void Update()
