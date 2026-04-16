@@ -27,7 +27,9 @@ namespace RhythmGameAssets.Scripts
         // TODO: Saved settings not being used
         // [SerializeField] private SavedSettings savedSettings;
         [SerializeField] private ScoreHandler _scoreHandler;
-        
+
+        [SerializeField] private AudioSource noteHitSound;
+
         private int _nextNoteIndex;
         Queue<ChartNote> activeNoteIds = new Queue<ChartNote>();
 
@@ -142,6 +144,10 @@ namespace RhythmGameAssets.Scripts
                         _inputStates[note.Direction] = false;
 
                         _scoreHandler.NoteHitScoring(songTime - timeToNextNote);
+
+                        noteHitSound.Stop();
+                        noteHitSound.time = 0.08f;
+                        noteHitSound.PlayScheduled(AudioSettings.dspTime);
 
                         if (note.Length > 0) // hold note: freeze head and begin tracking the tail
                         {

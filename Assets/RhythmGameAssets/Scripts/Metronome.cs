@@ -23,6 +23,11 @@ namespace RhythmGameAssets.Scripts
         private int _NumSyncTries = 0;
         private readonly int MAX_SYNC_TRIES = 100;
 
+        public void Start()
+        {
+            audioSource.mute = true;
+        }
+
         public void Update()
         {
             double songTime = GetPlaybackTime();
