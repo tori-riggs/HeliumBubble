@@ -141,13 +141,13 @@ namespace RhythmGameAssets.Scripts
 
                     if (KeyboardPressFromDirection(note.Direction))
                     {
+                        noteHitSound.Stop();
+                        noteHitSound.time = 0.095f;
+                        noteHitSound.PlayScheduled(AudioSettings.dspTime);
+
                         _inputStates[note.Direction] = false;
 
                         _scoreHandler.NoteHitScoring(songTime - timeToNextNote);
-
-                        noteHitSound.Stop();
-                        noteHitSound.time = 0.08f;
-                        noteHitSound.PlayScheduled(AudioSettings.dspTime);
 
                         if (note.Length > 0) // hold note: freeze head and begin tracking the tail
                         {
