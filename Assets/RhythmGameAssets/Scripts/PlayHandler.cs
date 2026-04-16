@@ -68,17 +68,17 @@ namespace RhythmGameAssets.Scripts
             // Detecting a restart of song
             if (_lastMetronomeTime - 3 > metronome.GetPlaybackTime())
             {
-                _nextNoteIndex = 0;
+                SwapChart(_scoreHandler.GetCurrentDifficulty());
             }
             
             var targetDifficulty = _scoreHandler.GetCurrentDifficulty();
             if (_chart.Difficulty != targetDifficulty.ToUpper())
                 SwapChart(targetDifficulty);
             
-            if (Keyboard.current.aKey.wasPressedThisFrame) leftTarget.PlayPop();
-            if (Keyboard.current.wKey.wasPressedThisFrame) upTarget.PlayPop();
-            if (Keyboard.current.sKey.wasPressedThisFrame) downTarget.PlayPop();
-            if (Keyboard.current.dKey.wasPressedThisFrame) rightTarget.PlayPop();
+            if (KeyboardPressFromDirection(NoteDirection.Left)) leftTarget.PlayPop();
+            if (KeyboardPressFromDirection(NoteDirection.Up)) upTarget.PlayPop();
+            if (KeyboardPressFromDirection(NoteDirection.Down)) downTarget.PlayPop();
+            if (KeyboardPressFromDirection(NoteDirection.Right)) rightTarget.PlayPop();
             
             if (_nextNoteIndex >= _chart.Notes.Count - 1) return;
             
@@ -120,16 +120,16 @@ namespace RhythmGameAssets.Scripts
             }
         
             if (Keyboard.current != null &&
-                (Keyboard.current.aKey.wasPressedThisFrame ||
-                 Keyboard.current.wKey.wasPressedThisFrame ||
-                 Keyboard.current.sKey.wasPressedThisFrame ||
-                 Keyboard.current.dKey.wasPressedThisFrame))
+                (KeyboardPressFromDirection(NoteDirection.Left)) ||
+                 (KeyboardPressFromDirection(NoteDirection.Up)) ||
+                  (KeyboardPressFromDirection(NoteDirection.Down)) ||
+                   (KeyboardPressFromDirection(NoteDirection.Right)))
             {
                 // Save all input states 
-                _inputStates[NoteDirection.Left]  = Keyboard.current.aKey.wasPressedThisFrame;
-                _inputStates[NoteDirection.Up]    = Keyboard.current.wKey.wasPressedThisFrame;
-                _inputStates[NoteDirection.Down]  = Keyboard.current.sKey.wasPressedThisFrame;
-                _inputStates[NoteDirection.Right] = Keyboard.current.dKey.wasPressedThisFrame;
+                _inputStates[NoteDirection.Left]  = KeyboardPressFromDirection(NoteDirection.Left);
+                _inputStates[NoteDirection.Up]    = KeyboardPressFromDirection(NoteDirection.Up);
+                _inputStates[NoteDirection.Down]  = KeyboardPressFromDirection(NoteDirection.Down);
+                _inputStates[NoteDirection.Right] = KeyboardPressFromDirection(NoteDirection.Right);
 
                 // Loop until either all inputs are handled or no more hittable notes
                 double timeToNextNote = GetActiveNoteTime();
@@ -241,24 +241,76 @@ namespace RhythmGameAssets.Scripts
 
         private bool KeyboardPressFromDirection(NoteDirection direction)
         {
+            var k = Keyboard.current;
+            
+            // LEFT: A, Left Arrow, 1, Z
+            var left = k.aKey.wasPressedThisFrame || 
+                       k.leftArrowKey.wasPressedThisFrame || 
+                       k.digit1Key.wasPressedThisFrame || 
+                       k.zKey.wasPressedThisFrame;
+
+            // UP: W, Up Arrow, 2, X
+            var up = k.wKey.wasPressedThisFrame || 
+                     k.upArrowKey.wasPressedThisFrame || 
+                     k.digit2Key.wasPressedThisFrame || 
+                     k.xKey.wasPressedThisFrame;
+
+            // DOWN: S, Down Arrow, 3, N
+            var down = k.sKey.wasPressedThisFrame || 
+                       k.downArrowKey.wasPressedThisFrame || 
+                       k.digit3Key.wasPressedThisFrame || 
+                       k.nKey.wasPressedThisFrame;
+
+            // RIGHT: D, Right Arrow, 4, M
+            var right = k.dKey.wasPressedThisFrame || 
+                        k.rightArrowKey.wasPressedThisFrame || 
+                        k.digit4Key.wasPressedThisFrame || 
+                        k.mKey.wasPressedThisFrame;
+            
             return direction switch
             {
-                NoteDirection.Left => Keyboard.current.aKey.wasPressedThisFrame,
-                NoteDirection.Up => Keyboard.current.wKey.wasPressedThisFrame,
-                NoteDirection.Down => Keyboard.current.sKey.wasPressedThisFrame,
-                NoteDirection.Right => Keyboard.current.dKey.wasPressedThisFrame,
+                NoteDirection.Left => left,
+                NoteDirection.Up => up,
+                NoteDirection.Down => down,
+                NoteDirection.Right => right,
                 _ => false
             };
         }
 
         private bool KeyboardHeldFromDirection(NoteDirection direction)
         {
+            var k = Keyboard.current;
+            
+            // LEFT: A, Left Arrow, 1, Z
+            var left = k.aKey.isPressed || 
+                        k.leftArrowKey.isPressed || 
+                        k.digit1Key.isPressed || 
+                        k.zKey.isPressed;
+
+            // UP: W, Up Arrow, 2, X
+            var up = k.wKey.isPressed || 
+                      k.upArrowKey.isPressed || 
+                      k.digit2Key.isPressed || 
+                      k.xKey.isPressed;
+
+            // DOWN: S, Down Arrow, 3, N
+            var down = k.sKey.isPressed || 
+                        k.downArrowKey.isPressed || 
+                        k.digit3Key.isPressed || 
+                        k.nKey.isPressed;
+
+            // RIGHT: D, Right Arrow, 4, M
+            var right = k.dKey.isPressed || 
+                         k.rightArrowKey.isPressed || 
+                         k.digit4Key.isPressed || 
+                         k.mKey.isPressed;
+            
             return direction switch
             {
-                NoteDirection.Left => Keyboard.current.aKey.isPressed,
-                NoteDirection.Up => Keyboard.current.wKey.isPressed,
-                NoteDirection.Down => Keyboard.current.sKey.isPressed,
-                NoteDirection.Right => Keyboard.current.dKey.isPressed,
+                NoteDirection.Left => left,
+                NoteDirection.Up => up,
+                NoteDirection.Down => down,
+                NoteDirection.Right => right,
                 _ => false
             };
         }
