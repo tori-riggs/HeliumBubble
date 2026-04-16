@@ -12,8 +12,7 @@
   PreviewEnd = 0
   Genre = "rock"
   MediaType = "digital"
-  GuitarStream = "C:\Users\liamd\home\school\8spring26\ime\project\charting\mirage\tracks\guitar.mp3"
-  DrumStream = "C:\Users\liamd\home\school\8spring26\ime\project\charting\mirage\tracks\drums.mp3"
+  DrumStream = "C:\home\school\8spring26\ime\charting\mirage\tracks\drums.mp3"
 }
 [SyncTrack]
 {
@@ -2806,12 +2805,13 @@
   114912 = N 4 0
   114960 = N 1 0
   115008 = N 4 0
-  115056 = N 0 0
-  115104 = N 0 0
-  115152 = N 0 0
-  115200 = N 0 0
+  115056 = N 1 0
+  115104 = N 1 0
+  115152 = N 1 0
+  115200 = N 1 0
   115248 = N 2 0
   115248 = N 3 0
+  115296 = N 4 0
   115344 = N 2 0
   115344 = N 3 0
 }
