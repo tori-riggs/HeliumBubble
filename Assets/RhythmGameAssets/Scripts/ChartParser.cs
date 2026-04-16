@@ -37,7 +37,8 @@ namespace RhythmGameAssets.Scripts
         }
 
         // Directory of all songs
-        [SerializeField] private string songsDir = @"Assets/RhythmGameAssets/Resources/Songs";
+        // [SerializeField] private string songsDir = @"Assets/RhythmGameAssets/Resources/Songs";
+        [SerializeField] private string songsDir = @"Assets/StreamingAssets/Songs";
         [SerializeField] private string chartFile = @"notes.chart"; // notes.chart file name
         [SerializeField] private string chartPath;
 
@@ -60,7 +61,7 @@ namespace RhythmGameAssets.Scripts
             var selectedSongName = song.Name; // get song name
             // Get full path of the Songs directory
             songsDir = Path.GetFullPath(Path.Combine(Application.streamingAssetsPath, songsDir));
-            // TODO: Support song selection
+            // songsDir = Path.GetFullPath(songsDir); // change path in unity if doing this
             // var selectedDir = TestChartParser(); // testing
             var selectedDir = Path.Join(songsDir, selectedSongName);
             // Get the file path of the notes.chart file
@@ -228,26 +229,49 @@ namespace RhythmGameAssets.Scripts
                     // TODO error handling
                     // noteDirection = _noteType[typeNum];
                     // 0 = Left, 1 = Up, 2 = Down, 3 = Right
-                    switch (typeNum)
+                    if (chart.Instrument.Equals("DRUMS"))
                     {
-                        case 0:
-                            noteDirection = NoteDirection.Left;
-                            break;
-                        case 1:
-                            noteDirection = NoteDirection.Left;
-                            break;
-                        case 2:
-                            noteDirection = NoteDirection.Up;
-                            break;
-                        case 3:
-                            noteDirection = NoteDirection.Down;
-                            break;
-                        // CloneHero has 5 lanes so just make the 4th type right
-                        case 4:
-                            noteDirection = NoteDirection.Right;
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
+                        switch (typeNum)
+                        {
+                            case 1:
+                                noteDirection = NoteDirection.Left;
+                                break;
+                            case 2:
+                                noteDirection = NoteDirection.Up;
+                                break;
+                            case 3:
+                                noteDirection = NoteDirection.Down;
+                                break;
+                            case 4:
+                                noteDirection = NoteDirection.Right;
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+                    }
+                    else
+                    {
+                        switch (typeNum)
+                        {
+                            case 0:
+                                noteDirection = NoteDirection.Left;
+                                break;
+                            case 1:
+                                noteDirection = NoteDirection.Up;
+                                break;
+                            case 2:
+                                noteDirection = NoteDirection.Down;
+                                break;
+                            case 3:
+                                noteDirection = NoteDirection.Right;
+                                break;
+                            // CloneHero has 5 lanes so just make the 4th type right
+                            case 4:
+                                noteDirection = NoteDirection.Right;
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
                     }
 
                     ChartNote chartNote = new ChartNote(_noteCount++, noteDirection, position, length);

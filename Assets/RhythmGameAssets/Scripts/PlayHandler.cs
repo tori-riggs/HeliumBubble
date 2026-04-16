@@ -1,10 +1,11 @@
+using MainMenu;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MainMenu;
-using NUnit.Framework;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 
 namespace RhythmGameAssets.Scripts
 {
@@ -22,7 +23,9 @@ namespace RhythmGameAssets.Scripts
         [SerializeField] private float bpm = 121f;
         [SerializeField] private float delay = 0f; // milliseconds
         [SerializeField] private NoteDirection beatSpawnDirection = NoteDirection.Down;
-        
+
+        public TextMeshProUGUI ControlSchemeText;
+
         // [SerializeField] private ChartParser chartParser;
         // TODO: Saved settings not being used
         // [SerializeField] private SavedSettings savedSettings;
@@ -44,6 +47,11 @@ namespace RhythmGameAssets.Scripts
             { NoteDirection.Right, false }
         };
 
+        private KeyControl _leftKeyBind;
+        private KeyControl _rightKeyBind;
+        private KeyControl _upKeyBind;
+        private KeyControl _downKeyBind;
+
         private Chart _chart; // current chart
         private double _lastMetronomeTime = 0;
         
@@ -59,12 +67,20 @@ namespace RhythmGameAssets.Scripts
             {
                 Debug.Log(note);
             }
+
+            UpdateKeybinds();
             
-            // metronome.StartPlayback();
+            //metronome.StartPlayback();
         }
 
         private void Update()
         {
+
+            if (Keyboard.current.ctrlKey.isPressed && Keyboard.current.slashKey.wasPressedThisFrame)
+            {
+                CycleControlScheme();
+            }
+
             // Detecting a restart of song
             if (_lastMetronomeTime - 3 > metronome.GetPlaybackTime())
             {
@@ -75,10 +91,10 @@ namespace RhythmGameAssets.Scripts
             if (_chart.Difficulty != targetDifficulty.ToUpper())
                 SwapChart(targetDifficulty);
             
-            if (Keyboard.current.aKey.wasPressedThisFrame) leftTarget.PlayPop();
-            if (Keyboard.current.wKey.wasPressedThisFrame) upTarget.PlayPop();
-            if (Keyboard.current.sKey.wasPressedThisFrame) downTarget.PlayPop();
-            if (Keyboard.current.dKey.wasPressedThisFrame) rightTarget.PlayPop();
+            if (this._leftKeyBind.wasPressedThisFrame) leftTarget.PlayPop();
+            if (this._upKeyBind.wasPressedThisFrame) upTarget.PlayPop();
+            if (this._downKeyBind.wasPressedThisFrame) downTarget.PlayPop();
+            if (this._rightKeyBind.wasPressedThisFrame) rightTarget.PlayPop();
             
             if (_nextNoteIndex >= _chart.Notes.Count - 1) return;
             
@@ -120,16 +136,16 @@ namespace RhythmGameAssets.Scripts
             }
         
             if (Keyboard.current != null &&
-                (Keyboard.current.aKey.wasPressedThisFrame ||
-                 Keyboard.current.wKey.wasPressedThisFrame ||
-                 Keyboard.current.sKey.wasPressedThisFrame ||
-                 Keyboard.current.dKey.wasPressedThisFrame))
+                (this._leftKeyBind.wasPressedThisFrame ||
+                 this._rightKeyBind.wasPressedThisFrame ||
+                 this._upKeyBind.wasPressedThisFrame ||
+                 this._downKeyBind.wasPressedThisFrame))
             {
                 // Save all input states 
-                _inputStates[NoteDirection.Left]  = Keyboard.current.aKey.wasPressedThisFrame;
-                _inputStates[NoteDirection.Up]    = Keyboard.current.wKey.wasPressedThisFrame;
-                _inputStates[NoteDirection.Down]  = Keyboard.current.sKey.wasPressedThisFrame;
-                _inputStates[NoteDirection.Right] = Keyboard.current.dKey.wasPressedThisFrame;
+                _inputStates[NoteDirection.Left]  = this._leftKeyBind.wasPressedThisFrame;
+                _inputStates[NoteDirection.Up]    = this._upKeyBind.wasPressedThisFrame;
+                _inputStates[NoteDirection.Down]  = this._downKeyBind.wasPressedThisFrame;
+                _inputStates[NoteDirection.Right] = this._rightKeyBind.wasPressedThisFrame;
 
                 // Loop until either all inputs are handled or no more hittable notes
                 double timeToNextNote = GetActiveNoteTime();
@@ -243,10 +259,10 @@ namespace RhythmGameAssets.Scripts
         {
             return direction switch
             {
-                NoteDirection.Left => Keyboard.current.aKey.wasPressedThisFrame,
-                NoteDirection.Up => Keyboard.current.wKey.wasPressedThisFrame,
-                NoteDirection.Down => Keyboard.current.sKey.wasPressedThisFrame,
-                NoteDirection.Right => Keyboard.current.dKey.wasPressedThisFrame,
+                NoteDirection.Left => this._leftKeyBind.wasPressedThisFrame,
+                NoteDirection.Up => this._upKeyBind.wasPressedThisFrame,
+                NoteDirection.Down => this._downKeyBind.wasPressedThisFrame,
+                NoteDirection.Right => this._rightKeyBind.wasPressedThisFrame,
                 _ => false
             };
         }
@@ -255,12 +271,55 @@ namespace RhythmGameAssets.Scripts
         {
             return direction switch
             {
-                NoteDirection.Left => Keyboard.current.aKey.isPressed,
-                NoteDirection.Up => Keyboard.current.wKey.isPressed,
-                NoteDirection.Down => Keyboard.current.sKey.isPressed,
-                NoteDirection.Right => Keyboard.current.dKey.isPressed,
+                NoteDirection.Left => this._leftKeyBind.isPressed,
+                NoteDirection.Up => this._upKeyBind.isPressed,
+                NoteDirection.Down => this._downKeyBind.isPressed,
+                NoteDirection.Right => this._rightKeyBind.isPressed,
                 _ => false
             };
+        }
+
+        private void UpdateKeybinds()
+        {
+            switch (SavedSettings.Instance.CurrentControlScheme)
+            {
+                case ControlScheme.WASD:
+                    _leftKeyBind = Keyboard.current.aKey;
+                    _rightKeyBind = Keyboard.current.dKey;
+                    _upKeyBind = Keyboard.current.wKey;
+                    _downKeyBind = Keyboard.current.sKey;
+                    break;
+                case ControlScheme.DFJK:
+                    _leftKeyBind = Keyboard.current.dKey;
+                    _rightKeyBind = Keyboard.current.kKey;
+                    _upKeyBind = Keyboard.current.fKey;
+                    _downKeyBind = Keyboard.current.jKey;
+                    break;
+                case ControlScheme.ZXCV:
+                    _leftKeyBind = Keyboard.current.zKey;
+                    _rightKeyBind = Keyboard.current.vKey;
+                    _upKeyBind = Keyboard.current.xKey;
+                    _downKeyBind = Keyboard.current.cKey;
+                    break;
+            }
+
+            ControlSchemeText.text = SavedSettings.Instance.CurrentControlScheme.ToString();
+        }
+
+        private void CycleControlScheme()
+        {
+            int enumIndex = (int)SavedSettings.Instance.CurrentControlScheme;
+
+            enumIndex++;
+            if (enumIndex > (int)ControlScheme.ZXCV)
+            {
+                enumIndex = 0;
+            }
+
+            ControlScheme newScheme = (ControlScheme)enumIndex;
+            SavedSettings.Instance.CurrentControlScheme = newScheme;
+
+            UpdateKeybinds();
         }
     }
 }

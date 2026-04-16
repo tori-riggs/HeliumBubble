@@ -1,6 +1,7 @@
 using MainMenu;
 using NativeWebSocket;
 using Newtonsoft.Json;
+using System.IO;
 using System;
 using UnityEngine;
 
@@ -183,6 +184,8 @@ namespace RhythmGameAssets.Scripts
         {
             SetSelectedInstrument();
 
+            LoadIPFromFile();
+
             _websocket = new WebSocket("ws://" + WebsocketIP);
 
             _websocket.OnOpen += () => { SendConnectionPacket(); };
@@ -210,6 +213,24 @@ namespace RhythmGameAssets.Scripts
             InvokeRepeating("SendPingPacket", 1, 0.5f);
 
             await _websocket.Connect();
+        }
+
+        void LoadIPFromFile()
+        {
+            string assetsPath = Path.GetFullPath(Application.streamingAssetsPath);
+            string ipPath = Path.Join(assetsPath, "ip.txt");
+
+            try
+            {
+                using (StreamReader reader = new StreamReader(ipPath))
+                {
+                    string line = reader.ReadLine();
+                    this.WebsocketIP = line;
+                }
+            } catch (Exception e)
+            {
+                Debug.Log("Error reading IP from file: " + e);
+            }
         }
 
         async void SendConnectionPacket()

@@ -1,17 +1,22 @@
 using UnityEngine;
 using RhythmGameAssets.Scripts;
-using System.Collections.Generic;
-using System.IO;
 
 namespace MainMenu
 {
-    // [CreateAssetMenu(fileName = "SavedSettings", menuName = "Scriptable Objects/SavedSettings")]
+    public enum ControlScheme
+    {
+        WASD,
+        DFJK,
+        ZXCV,
+    };
+
     public class SavedSettings : MonoBehaviour
     {
         public string Difficulty { get; set; }
         public string Instrument { get; set; }
         public Song SelectedSong { get; set; }
         public Chart SelectedChart { get; set; }
+        public ControlScheme CurrentControlScheme { get; set; }
         public static SavedSettings Instance { get; set; }
 
         void Start()
@@ -20,6 +25,9 @@ namespace MainMenu
                 Destroy(this);
             else
             {
+                // default WASD
+                this.CurrentControlScheme = ControlScheme.WASD;
+
                 Instance = this;
                 DontDestroyOnLoad(gameObject);
             }
