@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using System.IO;
 using System;
 using UnityEngine;
+using TMPro;
 
 namespace RhythmGameAssets.Scripts
 {
@@ -15,6 +16,7 @@ namespace RhythmGameAssets.Scripts
         KEYS1,
         KEYS2
     }
+
     public enum Sender
     {
         CLIENT,
@@ -28,7 +30,8 @@ namespace RhythmGameAssets.Scripts
         SCORE,
         SOUND,
         SYNC,
-        PING
+        PING,
+        PLACEMENT
     }
 
     public class WebPacket
@@ -165,13 +168,38 @@ namespace RhythmGameAssets.Scripts
         }
     }
 
+    public class PlacementPacket : WebPacket
+    {
+        public int Placement;
+        public Instrument Instrument;
+
+        public PlacementPacket(int placement, Instrument instrument) : base(Sender.CLIENT, PacketType.PLACEMENT)
+        {
+            Placement = placement;
+            Instrument = instrument;
+        }
+
+        public new string ToJSON()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
+
+        public new static PlacementPacket FromJSON(String jsonString)
+        {
+            return JsonConvert.DeserializeObject<PlacementPacket>(jsonString);
+        }
+    }
+
     public class Communicator : MonoBehaviour
     {
         [SerializeField] Metronome _metronome;
 
-        [SerializeField] string WebsocketIP = "localhost:8080";
         [SerializeField] Instrument SelectedInstrument = Instrument.BASS;
 
+        [Header("UI")]
+        [SerializeField] TextMeshProUGUI PlacementText;
+
+        private string WebsocketIP;
         private WebSocket _websocket;
         private long _lastPingSent = -1;
 
@@ -206,6 +234,10 @@ namespace RhythmGameAssets.Scripts
                     case PacketType.PING:
                         PingPacket pPacket = PingPacket.FromJSON(packetJSON);
                         CalculateServerLatency(pPacket);
+                        break;
+                    case PacketType.PLACEMENT:
+                        PlacementPacket plPacket = PlacementPacket.FromJSON(packetJSON);
+                        UpdatePlacementUI(plPacket.Placement);
                         break;
                 }
             };
@@ -273,6 +305,30 @@ namespace RhythmGameAssets.Scripts
                 "KEYBOARD" => Instrument.KEYS1,
                 _ => Instrument.BASS
             };
+        }
+
+        void UpdatePlacementUI(int placement)
+        {
+            switch (placement)
+            {
+                case 1:
+                    this.PlacementText.text = "1st";
+                    break;
+                case 2:
+                    this.PlacementText.text = "2nd";
+                    break;
+                case 3:
+                    this.PlacementText.text = "3rd";
+                    break;
+                case 4:
+                    this.PlacementText.text = "4th";
+                    break;
+                case 5:
+                    this.PlacementText.text = "5th";
+                    break;
+                default:
+                    break;
+            }
         }
 
         void CalculateServerLatency(PingPacket packet)

@@ -12,8 +12,6 @@ namespace RhythmGameAssets.Scripts
         [Header("Playback")]
         [SerializeField] private double startDelaySeconds = 2.0;
 
-        [SerializeField] private TextMeshProUGUI songTimer;
-
         private double dspStartTime;
         private bool isPlayingScheduled = false;
 
@@ -30,8 +28,6 @@ namespace RhythmGameAssets.Scripts
 
         public void Update()
         {
-            double songTime = GetPlaybackTime();
-            songTimer.text = songTime.ToString("0.000");
         }
 
         // this is in seconds

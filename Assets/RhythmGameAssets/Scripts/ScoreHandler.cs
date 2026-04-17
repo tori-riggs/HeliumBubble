@@ -22,10 +22,12 @@ namespace RhythmGameAssets.Scripts
 
         [SerializeField] private Communicator communicator;
 
+        [Header("UI")]
         public TextMeshProUGUI scoreText;
-        public TextMeshProUGUI difficultyText;
+        //public TextMeshProUGUI difficultyText;
         public GameObject hitNotif;
         public TextMeshProUGUI hitNotifText;
+        public SpriteRenderer background;
 
         private int _TotalNoteCount = 0;
         private float _CurrentHitScore = 0;
@@ -34,6 +36,21 @@ namespace RhythmGameAssets.Scripts
         private const int DIFFICULTY_WINDOW = 12;
         private Queue<float> _recentNoteScores = new Queue<float>();
         private Difficulty _currentDifficulty = Difficulty.Easy;
+
+        private bool interpBackground = false;
+        private long interpStart = -1;
+        private long interpTime = 10000;
+
+        // Background Colors
+        private Color easyColor = Color.white;
+        private Color mediumColor = Color.yellow;
+        private Color expertColor = Color.red;
+
+        // Hit notif colors
+        private Color perfectColor = Color.cyan;
+        private Color greatColor = Color.green;
+        private Color goodColor = Color.yellow;
+        private Color missColor = Color.red;
         
         // TODO input delay stuff???
         public int Score { get; private set; }
@@ -47,6 +64,7 @@ namespace RhythmGameAssets.Scripts
             if (delay <= perfectMargin)
             {
                 hitNotifText.text = "Perfect!";
+                hitNotifText.color = perfectColor;
                 hitNotif.SetActive(true);
                 Score += perfectScore;
                 _CurrentHitScore += 1f;
@@ -54,20 +72,23 @@ namespace RhythmGameAssets.Scripts
             } else if (delay <= greatMargin)
             {
                 hitNotifText.text = "Great!";
+                hitNotifText.color = greatColor;
                 hitNotif.SetActive(true);
                 Score += greatScore;
-                _CurrentHitScore += 0.9f;
+                _CurrentHitScore += 0.8f;
                 noteAccuracy = 0.9f;
             } else if (delay <= goodMargin)
             {
                 hitNotifText.text = "Good!";
+                hitNotifText.color = goodColor;
                 hitNotif.SetActive(true);
                 Score += goodScore;
-                _CurrentHitScore += 0.85f;
+                _CurrentHitScore += 0.5f;
                 noteAccuracy = 0.85f;
             } else
             {
                 hitNotifText.text = "Miss!";
+                hitNotifText.color = missColor;
                 hitNotif.SetActive(true);
                 noteAccuracy = 0.0f;
             }
@@ -84,6 +105,7 @@ namespace RhythmGameAssets.Scripts
         public void NoteMissed()
         {
             hitNotifText.text = "Miss!";
+            hitNotifText.color = missColor;
             hitNotif.SetActive(true);
             
             _TotalNoteCount++;
@@ -128,7 +150,37 @@ namespace RhythmGameAssets.Scripts
                     break;
             }
 
-            difficultyText.text = GetCurrentDifficulty();
+            //difficultyText.text = GetCurrentDifficulty();
+            interpBackground = true;
+            interpStart = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        }
+
+        private void AdjustBackgroundColor()
+        {
+            Color color = DifficultyToColor(this._currentDifficulty);
+            if (color == background.color) return;
+
+            Vector3 oldColor = new Vector3(background.color.r, background.color.g, background.color.b);
+            Vector3 newColor = new Vector3(color.r, color.g, color.b);
+
+            long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            float t = (float) (now - interpStart) / interpTime;
+
+            if (t >= 1.0) interpBackground = false;
+
+            Vector3 interpColor = Vector3.Lerp(oldColor, newColor, t);
+            background.color = new Color(interpColor.x, interpColor.y, interpColor.z);
+        }
+
+        private Color DifficultyToColor(Difficulty difficulty)
+        {
+            return difficulty switch
+            {
+                Difficulty.Easy => easyColor,
+                Difficulty.Medium => mediumColor,
+                Difficulty.Expert => expertColor,
+                _ => Color.white,
+            };
         }
 
         public string GetCurrentDifficulty()
@@ -158,14 +210,18 @@ namespace RhythmGameAssets.Scripts
             Score = 0;
                         
             var difficulty = SavedSettings.Instance.Difficulty;
-            difficultyText.text = difficulty;
+            //difficultyText.text = difficulty;
             if (!Enum.TryParse(difficulty, ignoreCase: true, out _currentDifficulty))
                 _currentDifficulty = Difficulty.Easy;
+
+            background.color = DifficultyToColor(this._currentDifficulty);
         }
 
         private void Update()
         {
-            
+            if (!interpBackground) return;
+
+            AdjustBackgroundColor();            
         }
     }
 }
