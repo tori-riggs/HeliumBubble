@@ -51,6 +51,11 @@ namespace RhythmGameAssets.Scripts
         
         private double DelaySeconds => delay / 1000.0;
 
+        // This is a scuffed way of fixing logic,
+        // so ideally find a better way instead of
+        // using this lol
+        private const int MAX_CHECKS = 100;
+
         private void Start()
         {
             // _song = chartParser.CurrentSong;
@@ -81,33 +86,31 @@ namespace RhythmGameAssets.Scripts
             if (KeyboardPressFromDirection(NoteDirection.Up)) upTarget.PlayPop();
             if (KeyboardPressFromDirection(NoteDirection.Down)) downTarget.PlayPop();
             if (KeyboardPressFromDirection(NoteDirection.Right)) rightTarget.PlayPop();
-            
-            if (_nextNoteIndex >= _chart.Notes.Count - 1) return;
+
+            bool spawnNext = _nextNoteIndex < _chart.Notes.Count;
             
             var songTime = metronome.GetPlaybackTime() * 1000.0;
 
-            while (songTime + (notePool.timeOnScreen * 1000.0) >= GetNoteTime(_chart.Notes[_nextNoteIndex]))
+            while (spawnNext && songTime + (notePool.timeOnScreen * 1000.0) >= GetNoteTime(_chart.Notes[_nextNoteIndex]))
             {
                 var chartNote = _chart.Notes[_nextNoteIndex];
                 activeNoteIds.Enqueue(chartNote);
                 float holdDuration = (float)(GetNoteLengthMs(chartNote) / 1000.0);
                 notePool.SpawnNote(chartNote, holdDuration);
                 _nextNoteIndex++;
+
+                spawnNext = _nextNoteIndex < _chart.Notes.Count;
             }
 
             // Update any notes currently being held
             UpdateHeldNotes(songTime);
 
-            if (activeNoteIds.Count == 0)
-            {
-                return;
-            }
-            
             // If input was hit and there is a note within 100 milliseconds
             // Check if that key was pressed. If not, wrong key was pressed so missed note
             // If key was pressed, log that hit with the delay
 
             if (activeNoteIds.Count == 0) return;
+
             double nextNoteTime = GetActiveNoteTime();
             while (songTime - 100.0 >= nextNoteTime)
             {
@@ -120,13 +123,14 @@ namespace RhythmGameAssets.Scripts
         
                 nextNoteTime = GetActiveNoteTime();
             }
-        
+
             if (Keyboard.current != null &&
                 (KeyboardPressFromDirection(NoteDirection.Left)) ||
                  (KeyboardPressFromDirection(NoteDirection.Up)) ||
                   (KeyboardPressFromDirection(NoteDirection.Down)) ||
                    (KeyboardPressFromDirection(NoteDirection.Right)))
             {
+
                 // Save all input states 
                 _inputStates[NoteDirection.Left]  = KeyboardPressFromDirection(NoteDirection.Left);
                 _inputStates[NoteDirection.Up]    = KeyboardPressFromDirection(NoteDirection.Up);
@@ -135,9 +139,11 @@ namespace RhythmGameAssets.Scripts
 
                 // Loop until either all inputs are handled or no more hittable notes
                 double timeToNextNote = GetActiveNoteTime();
-                while (songTime + 150.0 >= timeToNextNote && _inputStates.Values.Any(state => state))
+                int checks = 0;
+
+                while (songTime + 150.0 >= timeToNextNote && _inputStates.Values.Any(state => state) && checks < MAX_CHECKS)
                 {
-                    var note = activeNoteIds.Dequeue();
+                    ChartNote note = activeNoteIds.Dequeue();
 
                     if (KeyboardPressFromDirection(note.Direction))
                     {
@@ -162,13 +168,17 @@ namespace RhythmGameAssets.Scripts
                     }
                     else
                     {
-                        notePool.Release(notePool.GetActiveNote(note));
-                        _scoreHandler.NoteMissed();
+                        // Add the note back into the queue if we got a different keypress.
+                        // This fixes only one hold note activating if the left-most one
+                        // is pressed AFTER one to the right
+                        activeNoteIds.Enqueue(note);
                     }
-                    
+
                     if (activeNoteIds.Count == 0) return;
 
                     timeToNextNote = GetActiveNoteTime();
+
+                    checks++;
                 }
             }
 
