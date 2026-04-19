@@ -62,7 +62,7 @@ namespace RhythmGameAssets.Scripts
                 Debug.Log(note);
             }
             
-            // metronome.StartPlayback();
+             //metronome.StartPlayback();
         }
 
         private void Update()
@@ -141,8 +141,6 @@ namespace RhythmGameAssets.Scripts
 
                     if (KeyboardPressFromDirection(note.Direction))
                     {
-                        noteHitSound.Stop();
-                        noteHitSound.time = 0.095f;
                         noteHitSound.PlayScheduled(AudioSettings.dspTime);
 
                         _inputStates[note.Direction] = false;

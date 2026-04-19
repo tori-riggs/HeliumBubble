@@ -12,7 +12,8 @@ namespace RhythmGameAssets.Scripts
         [Header("Playback")]
         [SerializeField] private double startDelaySeconds = 2.0;
 
-        [SerializeField] private TextMeshProUGUI songTimer;
+        [Header("UI")]
+        public SpriteRenderer SongTimer;
 
         private double dspStartTime;
         private bool isPlayingScheduled = false;
@@ -23,15 +24,22 @@ namespace RhythmGameAssets.Scripts
         private int _NumSyncTries = 0;
         private readonly int MAX_SYNC_TRIES = 100;
 
+        private float _songTime;
+        private const float _songTimerXScale = 0.985f;
+        private const float _songTimerYScale = 0.12f;
+
         public void Start()
         {
             audioSource.mute = true;
+            _songTime = audioSource.clip.length;
         }
 
         public void Update()
         {
-            double songTime = GetPlaybackTime();
-            songTimer.text = songTime.ToString("0.000");
+            float currentTime = GetPlaybackTime();
+            float progress = currentTime / _songTime;
+            float scaleX = progress * _songTimerXScale;
+            SongTimer.transform.localScale = new Vector2(scaleX, _songTimerYScale);
         }
 
         // this is in seconds
@@ -54,9 +62,9 @@ namespace RhythmGameAssets.Scripts
         /// <summary>
         /// Returns the playback time in seconds since the start
         /// </summary>
-        public double GetPlaybackTime()
+        public float GetPlaybackTime()
         {
-            if (!isPlayingScheduled) return 0.0;
+            if (!isPlayingScheduled) return 0.0f;
             if (IsPaused) return audioSource.time;
 
             double currentTime = AudioSettings.dspTime - dspStartTime;
