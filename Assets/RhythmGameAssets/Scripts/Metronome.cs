@@ -37,7 +37,7 @@ namespace RhythmGameAssets.Scripts
         public void Update()
         {
             float currentTime = GetPlaybackTime();
-            float progress = currentTime / _songTime;
+            float progress = Math.Min(currentTime / _songTime, 1.0f);
             float scaleX = progress * _songTimerXScale;
             SongTimer.transform.localScale = new Vector2(scaleX, _songTimerYScale);
         }
