@@ -131,7 +131,7 @@ namespace RhythmGameAssets.Scripts
             dspStartTime = AudioSettings.dspTime - serverTime;
 
             serverTime = Math.Max(0, serverTime);
-            serverTime = Math.Min(serverTime, audioSource.clip.length - 0.05f);
+            serverTime = Math.Min(serverTime, audioSource.clip.length - 0.001f);
 
             audioSource.time = serverTime;
 
