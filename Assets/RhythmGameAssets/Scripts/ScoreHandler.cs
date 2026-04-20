@@ -43,8 +43,8 @@ namespace RhythmGameAssets.Scripts
 
         // Background Colors
         private Color easyColor = Color.white;
-        private Color mediumColor = Color.yellow;
-        private Color expertColor = Color.red;
+        private Color mediumColor = new(255 / 255f, 255 / 255f, 0 / 255f);
+        private Color expertColor = new(255 / 255f, 50 / 255f, 0 / 255f);
 
         // Hit notif colors
         private Color perfectColor = Color.cyan;
