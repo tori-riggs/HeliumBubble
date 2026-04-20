@@ -155,6 +155,29 @@ namespace RhythmGameAssets.Scripts
             interpStart = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         }
 
+        public void ResetCurrentDifficulty()
+        {
+            _currentDifficulty = SavedSettings.Instance.Difficulty.ToUpper() switch
+            {
+                "EASY" => Difficulty.Easy,
+                "MEDIUM" => Difficulty.Medium,
+                "EXPERT" => Difficulty.Expert,
+                _ => Difficulty.Easy,
+            };
+        }
+
+        public void ResetTexts()
+        {
+            _TotalNoteCount = 0;
+            _CurrentHitScore = 0.0f;
+
+            hitNotif.SetActive(false);
+            hitNotifText.text = "";
+            Score = 0;
+
+            scoreText.text = "0";
+        }
+
         private void AdjustBackgroundColor()
         {
             Color color = DifficultyToColor(this._currentDifficulty);

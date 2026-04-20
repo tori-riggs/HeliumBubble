@@ -71,6 +71,11 @@ namespace RhythmGameAssets.Scripts
             return Mathf.Max(0f, (float) currentTime);
         }
 
+        public float GetMaxPlaytime()
+        {
+            return _songTime;
+        }
+
         public void PausePlayback()
         {
             audioSource.Pause();
@@ -82,6 +87,12 @@ namespace RhythmGameAssets.Scripts
             audioSource.UnPause();
             IsPaused = false;
             _NeedsSync = true;
+        }
+
+        public void ForceResync()
+        {
+            this._NumSyncTries = 0;
+            this._NeedsSync = true;
         }
 
         public void AdjustPlaybackTime(bool isPlaying, float serverTime)
@@ -114,10 +125,14 @@ namespace RhythmGameAssets.Scripts
             _NeedsSync = delay > SONG_DIFF_THRESHOLD;
 
             // skip to server time if we are too far ahead/behind
-            Debug.Log("Calculated server time: " + serverTime);
-            Debug.Log("Client time: " + clientTime);
-            Debug.Log("Delay: " + delay);
+            //Debug.Log("Calculated server time: " + serverTime);
+            //Debug.Log("Client time: " + clientTime);
+            //Debug.Log("Delay: " + delay);
             dspStartTime = AudioSettings.dspTime - serverTime;
+
+            serverTime = Math.Max(0, serverTime);
+            serverTime = Math.Min(serverTime, audioSource.clip.length - 0.05f);
+
             audioSource.time = serverTime;
 
             _NumSyncTries++;

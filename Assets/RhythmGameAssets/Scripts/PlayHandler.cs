@@ -30,7 +30,7 @@ namespace RhythmGameAssets.Scripts
 
         [SerializeField] private AudioSource noteHitSound;
 
-        private int _nextNoteIndex;
+        private int _nextNoteIndex = 0;
         Queue<ChartNote> activeNoteIds = new Queue<ChartNote>();
 
         // Hold-note tracking: direction → ChartNote currently being held
@@ -47,7 +47,6 @@ namespace RhythmGameAssets.Scripts
         };
 
         private Chart _chart; // current chart
-        private double _lastMetronomeTime = 0;
         
         private double DelaySeconds => delay / 1000.0;
 
@@ -56,16 +55,16 @@ namespace RhythmGameAssets.Scripts
         // using this lol
         private const int MAX_CHECKS = 100;
 
+        private bool _noMoreNotes = false;
+
         private void Start()
         {
-            // _song = chartParser.CurrentSong;
-            var difficulty = SavedSettings.Instance.Difficulty;
-            var instrument = SavedSettings.Instance.Instrument;
-            _chart = SavedSettings.Instance.SelectedSong.GetChart(difficulty, instrument);
-            foreach (ChartNote note in _chart.Notes)
-            {
-                Debug.Log(note);
-            }
+            LoadChart();
+
+            //foreach (ChartNote note in _chart.Notes)
+            //{
+            //    Debug.Log(note);
+            //}
             
              //metronome.StartPlayback();
         }
@@ -73,9 +72,9 @@ namespace RhythmGameAssets.Scripts
         private void Update()
         {
             // Detecting a restart of song
-            if (_lastMetronomeTime - 3 > metronome.GetPlaybackTime())
+            if (_noMoreNotes && metronome.GetPlaybackTime() <= 0.1)
             {
-                SwapChart(_scoreHandler.GetCurrentDifficulty());
+                ResetAll();
             }
             
             var targetDifficulty = _scoreHandler.GetCurrentDifficulty();
@@ -101,6 +100,8 @@ namespace RhythmGameAssets.Scripts
 
                 spawnNext = _nextNoteIndex < _chart.Notes.Count;
             }
+
+            if (!spawnNext) _noMoreNotes = true;
 
             // Update any notes currently being held
             UpdateHeldNotes(songTime);
@@ -223,6 +224,38 @@ namespace RhythmGameAssets.Scripts
                 _heldNoteIds.Remove(dir);
                 _heldNoteStartSongTime.Remove(dir);
             }
+        }
+
+        private void LoadChart()
+        {
+            var difficulty = SavedSettings.Instance.Difficulty;
+            var instrument = SavedSettings.Instance.Instrument;
+
+            _chart = SavedSettings.Instance.SelectedSong.GetChart(difficulty, instrument);
+        }
+
+        private void ResetAll()
+        {
+            _noMoreNotes = false;
+            metronome.ForceResync();
+
+            LoadChart();
+            _scoreHandler.ResetCurrentDifficulty();
+            _scoreHandler.ResetTexts();
+
+            _nextNoteIndex = 0;
+            activeNoteIds = new Queue<ChartNote>();
+
+            _heldNoteIds = new Dictionary<NoteDirection, ChartNote>();
+            _heldNoteStartSongTime = new Dictionary<NoteDirection, double>();
+
+            _inputStates = new Dictionary<NoteDirection, bool>
+            {
+                { NoteDirection.Left, false },
+                { NoteDirection.Up, false },
+                { NoteDirection.Down, false },
+                { NoteDirection.Right, false }
+            };
         }
 
         private void SwapChart(string newDifficulty)
