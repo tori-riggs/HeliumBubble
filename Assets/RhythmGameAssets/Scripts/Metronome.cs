@@ -64,7 +64,6 @@ namespace RhythmGameAssets.Scripts
         /// </summary>
         public float GetPlaybackTime()
         {
-            if (!isPlayingScheduled) return 0.0f;
             if (IsPaused) return audioSource.time;
 
             double currentTime = AudioSettings.dspTime - dspStartTime;
