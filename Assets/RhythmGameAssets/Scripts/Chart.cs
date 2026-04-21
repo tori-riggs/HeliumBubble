@@ -22,11 +22,11 @@ namespace RhythmGameAssets.Scripts
         {
             get
             {
-                int mult = Difficulty switch
+                float mult = Difficulty switch
                 {
-                    "EASY" => 1,
-                    "MEDIUM" => 2,
-                    "EXPERT" => 3,
+                    "EASY" => 0.5f,
+                    "MEDIUM" => 0.75f,
+                    "EXPERT" => 1f,
                     _ => 1
                 };
                 int denom = NoteCount + HoldNoteCount;
