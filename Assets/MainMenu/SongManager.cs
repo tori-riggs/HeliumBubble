@@ -43,8 +43,6 @@ namespace MainMenu
                 Song song = new Song(songName, artist);
                 // Key: Song Name, Value: Song object
                 SongList.Add(song.Name, song);
-                // TODO call chart parser?
-                
             }
         }
         

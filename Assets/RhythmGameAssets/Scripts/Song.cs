@@ -80,12 +80,42 @@ namespace RhythmGameAssets.Scripts
         public List<string> GetDifficulties(string instrument)
         {
             List<string> difficulties = new List<string>();
+            // Chart (difficulties[i] corresponds to index of sortOrder.
+            List<int> sortOrder = new List<int>(); // sort order of difficulties[i]
             foreach (var d in _charts.Keys)
             {
                 if (GetChart(d, instrument) != null)
                 {
                     difficulties.Add(d);
+                    switch (d)
+                    {
+                        case "EASY":
+                            sortOrder.Add(0);
+                            break;
+                        case "MEDIUM":
+                            sortOrder.Add(1);
+                            break;
+                        case "EXPERT":
+                            sortOrder.Add(2);
+                            break;
+                    }
                 }
+            }
+            bool swapped = true;
+            for (int i = 0; i < difficulties.Count; i++)
+            {
+                swapped = false;
+                for (int j = 0; j < difficulties.Count - i - 1; j++)
+                {
+                    if (sortOrder[j] > sortOrder[j + 1])
+                    {
+                        (sortOrder[j], sortOrder[j + 1]) = (sortOrder[j + 1], sortOrder[j]);
+                        (difficulties[j], difficulties[j + 1]) = (difficulties[j + 1], difficulties[j]);
+                        swapped = true;
+                    }
+                }
+
+                if (!swapped) break;
             }
             return difficulties;
         }

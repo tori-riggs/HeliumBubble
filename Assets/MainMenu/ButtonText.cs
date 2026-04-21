@@ -14,14 +14,9 @@ namespace MainMenu
         public GameObject difficultyButton;
         public TextMeshProUGUI difficultyText;
         public TextMeshProUGUI error;
-        // private string[] _difficulties = { "EASY", "MEDIUM", "HARD" };
+        // private string[] _difficulties = { "EASY", "MEDIUM", "Expert" };
         // private Song song = SavedSettings.Instance.SelectedSong;
         private List<string> _difficulties = new List<string>();
-        
-        // void Awake()
-        // {
-        //     instrumentText.text = SavedSettings.Instance.Difficulty;
-        // }
         
         public void SetInstrument(int val)
         {
