@@ -303,6 +303,7 @@ namespace RhythmGameAssets.Scripts
                 "DRUMS" => Instrument.DRUMS,
                 "DOUBLEBASS" => Instrument.BASS,
                 "KEYBOARD" => Instrument.KEYS1,
+                "DOUBLERHYTHM" => Instrument.KEYS2,
                 _ => Instrument.BASS
             };
         }
