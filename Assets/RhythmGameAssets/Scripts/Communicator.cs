@@ -369,7 +369,7 @@ namespace RhythmGameAssets.Scripts
         }
 
         void HandleClientSync(SyncPacket packet)
-        { 
+        {
             _metronome.AdjustPlaybackTime(packet.SongIsPlaying, packet.SongTime + _avgLatency / 1000f);
         }
 

@@ -18,7 +18,7 @@ namespace RhythmGameAssets.Scripts
         private double dspStartTime;
         private bool isPlayingScheduled = false;
 
-        private bool IsPaused = false;
+        private bool IsPaused = true;
 
         private bool _NeedsSync = true;
         private int _NumSyncTries = 0;

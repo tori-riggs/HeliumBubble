@@ -605,7 +605,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -864.08, y: -424.47504}
+  m_AnchoredPosition: {x: -863.44, y: -424.47504}
   m_SizeDelta: {x: 5, y: 22.2}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &717528710
@@ -1154,7 +1154,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -864.08, y: -433.54}
+  m_AnchoredPosition: {x: -863.44, y: -433.54}
   m_SizeDelta: {x: 5, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1036668511
@@ -1817,7 +1817,7 @@ Transform:
   m_GameObject: {fileID: 1433115762}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -6.3873, y: -4.25, z: 0}
+  m_LocalPosition: {x: -5.73, y: -4.25, z: 0}
   m_LocalScale: {x: 0.639773, y: 0.12697873, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1943,7 +1943,7 @@ Transform:
   m_GameObject: {fileID: 1532299554}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -7.7, y: -4.25, z: 0}
+  m_LocalPosition: {x: -7.0427, y: -4.25, z: 0}
   m_LocalScale: {x: 0.09007908, y: 0.09007908, z: 0.09007908}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2620,7 +2620,7 @@ AudioSource:
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
-  Mute: 0
+  Mute: 1
   Spatialize: 0
   SpatializePostEffects: 0
   Priority: 128
