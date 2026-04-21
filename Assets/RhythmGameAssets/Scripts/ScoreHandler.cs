@@ -9,12 +9,12 @@ namespace RhythmGameAssets.Scripts
 {
     public class ScoreHandler : MonoBehaviour
     {
-        private enum Difficulty { Easy, Medium, Expert }
+        private enum Difficulty { EASY, MEDIUM, EXPERT }
 
         // Timing windows
         [SerializeField] private int perfectMargin = 20; // ±20 ms
         [SerializeField] private int greatMargin = 50; // ±50 ms
-        [SerializeField] private int goodMargin = 100; // ±100 ms
+        [SerializeField] private int goodMargin = 110; // ±110 ms
 
         private float _pointsPerNote = 500f;
 
@@ -33,7 +33,7 @@ namespace RhythmGameAssets.Scripts
         private readonly int HIT_COUNT_INTERVAL = 5;
         private int DifficultyWindow => _pointsPerNote > 0 ? Mathf.CeilToInt(5000f / _pointsPerNote) : 12;
         private Queue<float> _recentNoteScores = new Queue<float>();
-        private Difficulty _currentDifficulty = Difficulty.Easy;
+        private Difficulty _currentDifficulty = Difficulty.EASY;
 
         private bool interpColors = false;
         private long interpStart = -1;
@@ -148,11 +148,11 @@ namespace RhythmGameAssets.Scripts
 
             switch (accuracy)
             {
-                case > 0.8f when _currentDifficulty < Difficulty.Expert:
+                case > 0.8f when _currentDifficulty < Difficulty.EXPERT:
                     _currentDifficulty++;
                     _recentNoteScores.Clear();
                     break;
-                case < 0.5f when _currentDifficulty > Difficulty.Easy:
+                case < 0.5f when _currentDifficulty > Difficulty.EASY:
                     _currentDifficulty--;
                     _recentNoteScores.Clear();
                     break;
@@ -166,10 +166,10 @@ namespace RhythmGameAssets.Scripts
         {
             _currentDifficulty = SavedSettings.Instance.Difficulty.ToUpper() switch
             {
-                "EASY" => Difficulty.Easy,
-                "MEDIUM" => Difficulty.Medium,
-                "EXPERT" => Difficulty.Expert,
-                _ => Difficulty.Easy,
+                "EASY" => Difficulty.EASY,
+                "MEDIUM" => Difficulty.MEDIUM,
+                "EXPERT" => Difficulty.EXPERT,
+                _ => Difficulty.EASY,
             };
         }
 
@@ -215,9 +215,9 @@ namespace RhythmGameAssets.Scripts
         {
             return difficulty switch
             {
-                Difficulty.Easy => easyBgColor,
-                Difficulty.Medium => mediumBgColor,
-                Difficulty.Expert => expertBgColor,
+                Difficulty.EASY => easyBgColor,
+                Difficulty.MEDIUM => mediumBgColor,
+                Difficulty.EXPERT => expertBgColor,
                 _ => easyBgColor,
             };
         }
@@ -226,9 +226,9 @@ namespace RhythmGameAssets.Scripts
         {
             return difficulty switch
             {
-                Difficulty.Easy => easyTextBgColor,
-                Difficulty.Medium => mediumTextBgColor,
-                Difficulty.Expert => expertTextBgColor,
+                Difficulty.EASY => easyTextBgColor,
+                Difficulty.MEDIUM => mediumTextBgColor,
+                Difficulty.EXPERT => expertTextBgColor,
                 _ => easyTextBgColor,
             };
         }
@@ -262,7 +262,7 @@ namespace RhythmGameAssets.Scripts
             var difficulty = SavedSettings.Instance.Difficulty;
             //difficultyText.text = difficulty;
             if (!Enum.TryParse(difficulty, ignoreCase: true, out _currentDifficulty))
-                _currentDifficulty = Difficulty.Easy;
+                _currentDifficulty = Difficulty.EASY;
 
             background.color = DifficultyToBgColor(this._currentDifficulty);
             textBackground.color = DifficultyToTextBgColor(this._currentDifficulty);
