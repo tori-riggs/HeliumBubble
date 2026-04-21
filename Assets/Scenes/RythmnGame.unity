@@ -221,7 +221,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 999
   m_TargetDisplay: 0
 --- !u!1 &143200827
 GameObject:
@@ -2615,7 +2615,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: c274a9880aea4ff4bbab328c23147e1d, type: 3}
+  m_Resource: {fileID: 8300000, guid: 25fde16e08063d34dab45cc1bd3f8b54, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -2886,6 +2886,7 @@ MonoBehaviour:
   hitNotif: {fileID: 1162043232}
   hitNotifText: {fileID: 879434649}
   background: {fileID: 1711249217}
+  textBackground: {fileID: 691166288}
 --- !u!1 &2024493119
 GameObject:
   m_ObjectHideFlags: 0
