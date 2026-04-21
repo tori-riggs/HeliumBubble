@@ -66,7 +66,7 @@ namespace RhythmGameAssets.Scripts
             //    Debug.Log(note);
             //}
             
-             //metronome.StartPlayback();
+            //metronome.StartPlayback();
         }
 
         private void Update()
@@ -232,6 +232,7 @@ namespace RhythmGameAssets.Scripts
             var instrument = SavedSettings.Instance.Instrument;
 
             _chart = SavedSettings.Instance.SelectedSong.GetChart(difficulty, instrument);
+            _scoreHandler.SetChart(_chart);
         }
 
         private void ResetAll()
@@ -262,6 +263,7 @@ namespace RhythmGameAssets.Scripts
         {
             var instrument = SavedSettings.Instance.Instrument;
             _chart = SavedSettings.Instance.SelectedSong.GetChart(newDifficulty, instrument);
+            _scoreHandler.SetChart(_chart);
 
             // Seek to the first note that hasn't passed the spawn window yet
             var songTime = metronome.GetPlaybackTime() * 1000.0;
