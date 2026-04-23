@@ -163,6 +163,8 @@ namespace RhythmGameAssets.Scripts
 
         public void ResetCurrentDifficulty()
         {
+            Difficulty before = _currentDifficulty;
+
             _currentDifficulty = SavedSettings.Instance.Difficulty.ToUpper() switch
             {
                 "EASY" => Difficulty.EASY,
@@ -170,6 +172,29 @@ namespace RhythmGameAssets.Scripts
                 "EXPERT" => Difficulty.EXPERT,
                 _ => Difficulty.EASY,
             };
+
+            if (before == _currentDifficulty) return;
+
+            interpColors = true;
+            interpStart = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        }
+
+        public void SetCurrentDifficulty(string diff)
+        {
+            Difficulty before = _currentDifficulty;
+
+            _currentDifficulty = diff.ToUpper() switch
+            {
+                "EASY" => Difficulty.EASY,
+                "MEDIUM" => Difficulty.MEDIUM,
+                "EXPERT" => Difficulty.EXPERT,
+                _ => Difficulty.EASY,
+            };
+
+            if (before == _currentDifficulty) return;
+
+            interpColors = true;
+            interpStart = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         }
 
         public void ResetTexts()
