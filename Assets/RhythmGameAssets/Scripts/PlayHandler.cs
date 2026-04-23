@@ -71,7 +71,7 @@ namespace RhythmGameAssets.Scripts
             //    Debug.Log(note);
             //}
 
-            //metronome.StartPlayback();
+            metronome.StartPlayback();
         }
 
         private void Update()
@@ -107,6 +107,7 @@ namespace RhythmGameAssets.Scripts
                 rightTarget.PlayPop();
                 //_lastKeyPress = now;
             }
+            // if (Input.GetKeyDown(KeyCode.Escape))
 
             //bool wasAFK = _isAFK;
             //_isAFK = now - _lastKeyPress > AFK_TIME;
