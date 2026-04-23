@@ -40,14 +40,14 @@ namespace RhythmGameAssets.Scripts
         private long _interpTime = 10000;
 
         // Background Colors
-        private Color _easyBgColor = Color.white;
-        private Color _mediumBgColor = new(255 / 255f, 255 / 255f, 0 / 255f);
-        private Color _expertBgColor = new(255 / 255f, 50 / 255f, 0 / 255f);
+        private Color _easyBgColor = new(50 / 255f, 230 / 255f, 100 / 255f);
+        private Color _mediumBgColor = new(80 / 255f, 220 / 255f, 225 / 255f);
+        private Color _expertBgColor = new(228 / 255f, 200 / 255f, 255 / 255f);
 
         // Text Background Colors (Placement, hit, score)
-        private Color _easyTextBgColor = new(65 / 255f, 60 / 255f, 122 / 255f);
-        private Color _mediumTextBgColor = new(161 / 255f, 150 / 255f, 29 / 255f);
-        private Color _expertTextBgColor = new(145 / 255f, 13 / 255f, 13 / 255f);
+        private Color _easyTextBgColor = new(4 / 255f, 53 / 255f, 43 / 255f);
+        private Color _mediumTextBgColor = new(14 / 255f, 50 / 255f, 107 / 255f);
+        private Color _expertTextBgColor = new(57 / 255f, 45 / 255f, 122 / 255f);
 
         // Hit notif colors
         private Color _perfectColor = Color.cyan;
