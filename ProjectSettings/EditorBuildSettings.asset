@@ -12,7 +12,7 @@ EditorBuildSettings:
     path: Assets/Scenes/MainMenu.unity
     guid: 4a1f135af4e2e40578e1fea0768ab666
   - enabled: 1
-    path: Assets/Scenes/RythmnGame.unity
+    path: Assets/Scenes/RhythmGame.unity
     guid: 31f64e74ec5c0334aa4745f3a1e5d973
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
