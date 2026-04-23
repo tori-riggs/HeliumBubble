@@ -340,6 +340,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Networking
   _metronome: {fileID: 1900708973}
+  _scoreHandler: {fileID: 1974947953}
   SelectedInstrument: 2
   PlacementText: {fileID: 1370385091}
 --- !u!4 &422211542

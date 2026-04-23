@@ -55,7 +55,6 @@ namespace RhythmGameAssets.Scripts
         private Color goodColor = Color.yellow;
         private Color missColor = Color.red;
         
-        // TODO input delay stuff???
         public int Score { get; private set; }
 
         public void SetChart(Chart chart)
