@@ -27,33 +27,33 @@ namespace RhythmGameAssets.Scripts
         public SpriteRenderer background;
         public SpriteRenderer textBackground;
 
-        private int _TotalNoteCount = 0;
-        private float _CurrentHitScore = 0;
+        private int _totalNoteCount = 0;
+        private float _currentHitScore = 0;
 
-        private readonly int HIT_COUNT_INTERVAL = 5;
+        private readonly int _hitCountInterval = 5;
         private int DifficultyWindow => _pointsPerNote > 0 ? Mathf.CeilToInt(5000f / _pointsPerNote) : 12;
         private Queue<float> _recentNoteScores = new Queue<float>();
         private Difficulty _currentDifficulty = Difficulty.EASY;
 
-        private bool interpColors = false;
-        private long interpStart = -1;
-        private long interpTime = 10000;
+        private bool _interpColors = false;
+        private long _interpStart = -1;
+        private long _interpTime = 10000;
 
         // Background Colors
-        private Color easyBgColor = Color.white;
-        private Color mediumBgColor = new(255 / 255f, 255 / 255f, 0 / 255f);
-        private Color expertBgColor = new(255 / 255f, 50 / 255f, 0 / 255f);
+        private Color _easyBgColor = Color.white;
+        private Color _mediumBgColor = new(255 / 255f, 255 / 255f, 0 / 255f);
+        private Color _expertBgColor = new(255 / 255f, 50 / 255f, 0 / 255f);
 
         // Text Background Colors (Placement, hit, score)
-        private Color easyTextBgColor = new(65 / 255f, 60 / 255f, 122 / 255f);
-        private Color mediumTextBgColor = new(161 / 255f, 150 / 255f, 29 / 255f);
-        private Color expertTextBgColor = new(145 / 255f, 13 / 255f, 13 / 255f);
+        private Color _easyTextBgColor = new(65 / 255f, 60 / 255f, 122 / 255f);
+        private Color _mediumTextBgColor = new(161 / 255f, 150 / 255f, 29 / 255f);
+        private Color _expertTextBgColor = new(145 / 255f, 13 / 255f, 13 / 255f);
 
         // Hit notif colors
-        private Color perfectColor = Color.cyan;
-        private Color greatColor = Color.green;
-        private Color goodColor = Color.yellow;
-        private Color missColor = Color.red;
+        private Color _perfectColor = Color.cyan;
+        private Color _greatColor = Color.green;
+        private Color _goodColor = Color.yellow;
+        private Color _missColor = Color.red;
         
         public int Score { get; private set; }
 
@@ -71,36 +71,36 @@ namespace RhythmGameAssets.Scripts
             if (delay <= perfectMargin)
             {
                 hitNotifText.text = "Perfect!";
-                hitNotifText.color = perfectColor;
+                hitNotifText.color = _perfectColor;
                 hitNotif.SetActive(true);
                 Score += Mathf.RoundToInt(_pointsPerNote);
-                _CurrentHitScore += 1f;
+                _currentHitScore += 1f;
                 noteAccuracy = 1.0f;
             } else if (delay <= greatMargin)
             {
                 hitNotifText.text = "Great!";
-                hitNotifText.color = greatColor;
+                hitNotifText.color = _greatColor;
                 hitNotif.SetActive(true);
                 Score += Mathf.RoundToInt(_pointsPerNote * 0.75f);
-                _CurrentHitScore += 0.8f;
+                _currentHitScore += 0.8f;
                 noteAccuracy = 0.9f;
             } else if (delay <= goodMargin)
             {
                 hitNotifText.text = "Good!";
-                hitNotifText.color = goodColor;
+                hitNotifText.color = _goodColor;
                 hitNotif.SetActive(true);
                 Score += Mathf.RoundToInt(_pointsPerNote * 0.5f);
-                _CurrentHitScore += 0.5f;
+                _currentHitScore += 0.5f;
                 noteAccuracy = 0.85f;
             } else
             {
                 hitNotifText.text = "Miss!";
-                hitNotifText.color = missColor;
+                hitNotifText.color = _missColor;
                 hitNotif.SetActive(true);
                 noteAccuracy = 0.0f;
             }
 
-            _TotalNoteCount++;
+            _totalNoteCount++;
 
             CheckForDifficultyAdjust(noteAccuracy);
             CheckForInstrumentAdjust();
@@ -112,10 +112,10 @@ namespace RhythmGameAssets.Scripts
         public void NoteMissed()
         {
             hitNotifText.text = "Miss!";
-            hitNotifText.color = missColor;
+            hitNotifText.color = _missColor;
             hitNotif.SetActive(true);
             
-            _TotalNoteCount++;
+            _totalNoteCount++;
 
             CheckForDifficultyAdjust(0.0f);
             CheckForInstrumentAdjust();
@@ -157,8 +157,8 @@ namespace RhythmGameAssets.Scripts
                     break;
             }
 
-            interpColors = true;
-            interpStart = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            _interpColors = true;
+            _interpStart = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         }
 
         public void ResetCurrentDifficulty()
@@ -175,8 +175,8 @@ namespace RhythmGameAssets.Scripts
 
             if (before == _currentDifficulty) return;
 
-            interpColors = true;
-            interpStart = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            _interpColors = true;
+            _interpStart = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         }
 
         public void SetCurrentDifficulty(string diff)
@@ -193,14 +193,14 @@ namespace RhythmGameAssets.Scripts
 
             if (before == _currentDifficulty) return;
 
-            interpColors = true;
-            interpStart = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            _interpColors = true;
+            _interpStart = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         }
 
         public void ResetTexts()
         {
-            _TotalNoteCount = 0;
-            _CurrentHitScore = 0.0f;
+            _totalNoteCount = 0;
+            _currentHitScore = 0.0f;
 
             hitNotif.SetActive(false);
             hitNotifText.text = "";
@@ -224,9 +224,9 @@ namespace RhythmGameAssets.Scripts
             Vector3 newTextBgColor = new Vector3(textBgColor.r, textBgColor.g, textBgColor.b);
 
             long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            float t = (float) (now - interpStart) / interpTime;
+            float t = (float) (now - _interpStart) / _interpTime;
 
-            if (t >= 1.0) interpColors = false;
+            if (t >= 1.0) _interpColors = false;
 
             Vector3 interpBgColor = Vector3.Lerp(oldBgColor, newBgColor, t);
             background.color = new Color(interpBgColor.x, interpBgColor.y, interpBgColor.z);
@@ -239,10 +239,10 @@ namespace RhythmGameAssets.Scripts
         {
             return difficulty switch
             {
-                Difficulty.EASY => easyBgColor,
-                Difficulty.MEDIUM => mediumBgColor,
-                Difficulty.EXPERT => expertBgColor,
-                _ => easyBgColor,
+                Difficulty.EASY => _easyBgColor,
+                Difficulty.MEDIUM => _mediumBgColor,
+                Difficulty.EXPERT => _expertBgColor,
+                _ => _easyBgColor,
             };
         }
 
@@ -250,10 +250,10 @@ namespace RhythmGameAssets.Scripts
         {
             return difficulty switch
             {
-                Difficulty.EASY => easyTextBgColor,
-                Difficulty.MEDIUM => mediumTextBgColor,
-                Difficulty.EXPERT => expertTextBgColor,
-                _ => easyTextBgColor,
+                Difficulty.EASY => _easyTextBgColor,
+                Difficulty.MEDIUM => _mediumTextBgColor,
+                Difficulty.EXPERT => _expertTextBgColor,
+                _ => _easyTextBgColor,
             };
         }
 
@@ -264,7 +264,7 @@ namespace RhythmGameAssets.Scripts
 
         private void CheckForInstrumentAdjust()
         {
-            if (_TotalNoteCount % HIT_COUNT_INTERVAL == 0)
+            if (_totalNoteCount % _hitCountInterval == 0)
             {
                 AdjustInstrumentSound();
             }
@@ -272,10 +272,10 @@ namespace RhythmGameAssets.Scripts
 
         private void AdjustInstrumentSound()
         {
-            float scorePercentage = _CurrentHitScore / HIT_COUNT_INTERVAL;
+            float scorePercentage = _currentHitScore / _hitCountInterval;
             communicator.SendSoundPacket(scorePercentage);
 
-            _CurrentHitScore = 0f;
+            _currentHitScore = 0f;
         }
 
         private void Start()
@@ -294,7 +294,7 @@ namespace RhythmGameAssets.Scripts
 
         private void Update()
         {
-            if (!interpColors) return;
+            if (!_interpColors) return;
 
             AdjustColors();
         }
