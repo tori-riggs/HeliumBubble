@@ -193,6 +193,7 @@ namespace RhythmGameAssets.Scripts
     public class Communicator : MonoBehaviour
     {
         [SerializeField] Metronome _metronome;
+        [SerializeField] ScoreHandler _scoreHandler;
 
         [SerializeField] Instrument SelectedInstrument = Instrument.BASS;
 
@@ -239,6 +240,9 @@ namespace RhythmGameAssets.Scripts
                         PlacementPacket plPacket = PlacementPacket.FromJSON(packetJSON);
                         UpdatePlacementUI(plPacket.Placement);
                         break;
+                    case PacketType.CONNECTION:
+                        ReconnectToScoreboard();
+                        break;
                 }
             };
 
@@ -263,6 +267,12 @@ namespace RhythmGameAssets.Scripts
             {
                 Debug.Log("Error reading IP from file: " + e);
             }
+        }
+
+        async void ReconnectToScoreboard()
+        {
+            SendConnectionPacket();
+            SendScorePacket(_scoreHandler.Score);
         }
 
         async void SendConnectionPacket()
@@ -303,6 +313,7 @@ namespace RhythmGameAssets.Scripts
                 "DRUMS" => Instrument.DRUMS,
                 "DOUBLEBASS" => Instrument.BASS,
                 "KEYBOARD" => Instrument.KEYS1,
+                "DOUBLERHYTHM" => Instrument.KEYS2,
                 _ => Instrument.BASS
             };
         }
@@ -369,7 +380,7 @@ namespace RhythmGameAssets.Scripts
         }
 
         void HandleClientSync(SyncPacket packet)
-        { 
+        {
             _metronome.AdjustPlaybackTime(packet.SongIsPlaying, packet.SongTime + _avgLatency / 1000f);
         }
 

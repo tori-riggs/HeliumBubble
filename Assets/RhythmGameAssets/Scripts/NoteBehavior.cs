@@ -25,9 +25,9 @@ namespace RhythmGameAssets.Scripts
 
         public ChartNote Note { get; private set; }
         public NoteDirection Direction { get; private set; }
-        public float HoldDurationSeconds { get; private set; }
         public bool IsHoldNote => HoldDurationSeconds > 0f;
 
+        private float HoldDurationSeconds { get; set; }
         private NotePool _pool;
 
         // Called by NotePool right after the note is taken from the pool.

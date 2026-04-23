@@ -56,16 +56,21 @@ namespace RhythmGameAssets.Scripts
         private const int MAX_CHECKS = 100;
 
         private bool _noMoreNotes = false;
+        private bool _isAFK = false;
+        private const long AFK_TIME = 20000;
+
+        private long _lastKeyPress;
 
         private void Start()
         {
             LoadChart();
+            _lastKeyPress = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
             //foreach (ChartNote note in _chart.Notes)
             //{
             //    Debug.Log(note);
             //}
-            
+
             //metronome.StartPlayback();
         }
 
@@ -80,11 +85,41 @@ namespace RhythmGameAssets.Scripts
             var targetDifficulty = _scoreHandler.GetCurrentDifficulty();
             if (_chart.Difficulty != targetDifficulty.ToUpper())
                 SwapChart(targetDifficulty);
-            
-            if (KeyboardPressFromDirection(NoteDirection.Left)) leftTarget.PlayPop();
-            if (KeyboardPressFromDirection(NoteDirection.Up)) upTarget.PlayPop();
-            if (KeyboardPressFromDirection(NoteDirection.Down)) downTarget.PlayPop();
-            if (KeyboardPressFromDirection(NoteDirection.Right)) rightTarget.PlayPop();
+
+            //long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            if (KeyboardPressFromDirection(NoteDirection.Left))
+            {
+                leftTarget.PlayPop();
+                //_lastKeyPress = now;
+            }
+            if (KeyboardPressFromDirection(NoteDirection.Up))
+            {
+                upTarget.PlayPop();
+                //_lastKeyPress = now;
+            }
+            if (KeyboardPressFromDirection(NoteDirection.Down))
+            {
+                downTarget.PlayPop();
+                //_lastKeyPress = now;
+            }
+            if (KeyboardPressFromDirection(NoteDirection.Right))
+            {
+                rightTarget.PlayPop();
+                //_lastKeyPress = now;
+            }
+
+            //bool wasAFK = _isAFK;
+            //_isAFK = now - _lastKeyPress > AFK_TIME;
+
+            //bool needsReset = wasAFK != _isAFK;
+            bool needsReset = Keyboard.current.backspaceKey.wasPressedThisFrame;
+            if (needsReset)
+            {
+                _scoreHandler.SetCurrentDifficulty("EASY");
+                _scoreHandler.ResetTexts();
+
+                SwapChart("EASY");
+            }
 
             bool spawnNext = _nextNoteIndex < _chart.Notes.Count;
             
@@ -118,7 +153,7 @@ namespace RhythmGameAssets.Scripts
                 var note = activeNoteIds.Dequeue();
                 notePool.Release(notePool.GetActiveNote(note));
                 // TODO: disappear after a while
-                _scoreHandler.NoteMissed();
+                if (!_isAFK) _scoreHandler.NoteMissed();
         
                 if (activeNoteIds.Count == 0) return;
         
@@ -238,6 +273,9 @@ namespace RhythmGameAssets.Scripts
         private void ResetAll()
         {
             _noMoreNotes = false;
+            _isAFK = false;
+            _lastKeyPress = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
             metronome.ForceResync();
 
             LoadChart();

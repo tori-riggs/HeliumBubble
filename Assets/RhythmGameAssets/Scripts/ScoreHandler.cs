@@ -9,12 +9,12 @@ namespace RhythmGameAssets.Scripts
 {
     public class ScoreHandler : MonoBehaviour
     {
-        private enum Difficulty { Easy, Medium, Expert }
+        private enum Difficulty { EASY, MEDIUM, EXPERT }
 
         // Timing windows
         [SerializeField] private int perfectMargin = 20; // ±20 ms
         [SerializeField] private int greatMargin = 50; // ±50 ms
-        [SerializeField] private int goodMargin = 100; // ±100 ms
+        [SerializeField] private int goodMargin = 110; // ±110 ms
 
         private float _pointsPerNote = 500f;
 
@@ -22,35 +22,39 @@ namespace RhythmGameAssets.Scripts
 
         [Header("UI")]
         public TextMeshProUGUI scoreText;
-        //public TextMeshProUGUI difficultyText;
         public GameObject hitNotif;
         public TextMeshProUGUI hitNotifText;
         public SpriteRenderer background;
+        public SpriteRenderer textBackground;
 
-        private int _TotalNoteCount = 0;
-        private float _CurrentHitScore = 0;
+        private int _totalNoteCount = 0;
+        private float _currentHitScore = 0;
 
-        private readonly int HIT_COUNT_INTERVAL = 5;
+        private readonly int _hitCountInterval = 5;
         private int DifficultyWindow => _pointsPerNote > 0 ? Mathf.CeilToInt(5000f / _pointsPerNote) : 12;
         private Queue<float> _recentNoteScores = new Queue<float>();
-        private Difficulty _currentDifficulty = Difficulty.Easy;
+        private Difficulty _currentDifficulty = Difficulty.EASY;
 
-        private bool interpBackground = false;
-        private long interpStart = -1;
-        private long interpTime = 10000;
+        private bool _interpColors = false;
+        private long _interpStart = -1;
+        private long _interpTime = 10000;
 
         // Background Colors
-        private Color easyColor = Color.white;
-        private Color mediumColor = new(255 / 255f, 255 / 255f, 0 / 255f);
-        private Color expertColor = new(255 / 255f, 50 / 255f, 0 / 255f);
+        private Color _easyBgColor = Color.white;
+        private Color _mediumBgColor = new(255 / 255f, 255 / 255f, 0 / 255f);
+        private Color _expertBgColor = new(255 / 255f, 50 / 255f, 0 / 255f);
+
+        // Text Background Colors (Placement, hit, score)
+        private Color _easyTextBgColor = new(65 / 255f, 60 / 255f, 122 / 255f);
+        private Color _mediumTextBgColor = new(161 / 255f, 150 / 255f, 29 / 255f);
+        private Color _expertTextBgColor = new(145 / 255f, 13 / 255f, 13 / 255f);
 
         // Hit notif colors
-        private Color perfectColor = Color.cyan;
-        private Color greatColor = Color.green;
-        private Color goodColor = Color.yellow;
-        private Color missColor = Color.red;
+        private Color _perfectColor = Color.cyan;
+        private Color _greatColor = Color.green;
+        private Color _goodColor = Color.yellow;
+        private Color _missColor = Color.red;
         
-        // TODO input delay stuff???
         public int Score { get; private set; }
 
         public void SetChart(Chart chart)
@@ -67,36 +71,36 @@ namespace RhythmGameAssets.Scripts
             if (delay <= perfectMargin)
             {
                 hitNotifText.text = "Perfect!";
-                hitNotifText.color = perfectColor;
+                hitNotifText.color = _perfectColor;
                 hitNotif.SetActive(true);
                 Score += Mathf.RoundToInt(_pointsPerNote);
-                _CurrentHitScore += 1f;
+                _currentHitScore += 1f;
                 noteAccuracy = 1.0f;
             } else if (delay <= greatMargin)
             {
                 hitNotifText.text = "Great!";
-                hitNotifText.color = greatColor;
+                hitNotifText.color = _greatColor;
                 hitNotif.SetActive(true);
                 Score += Mathf.RoundToInt(_pointsPerNote * 0.75f);
-                _CurrentHitScore += 0.8f;
+                _currentHitScore += 0.8f;
                 noteAccuracy = 0.9f;
             } else if (delay <= goodMargin)
             {
                 hitNotifText.text = "Good!";
-                hitNotifText.color = goodColor;
+                hitNotifText.color = _goodColor;
                 hitNotif.SetActive(true);
                 Score += Mathf.RoundToInt(_pointsPerNote * 0.5f);
-                _CurrentHitScore += 0.5f;
+                _currentHitScore += 0.5f;
                 noteAccuracy = 0.85f;
             } else
             {
                 hitNotifText.text = "Miss!";
-                hitNotifText.color = missColor;
+                hitNotifText.color = _missColor;
                 hitNotif.SetActive(true);
                 noteAccuracy = 0.0f;
             }
 
-            _TotalNoteCount++;
+            _totalNoteCount++;
 
             CheckForDifficultyAdjust(noteAccuracy);
             CheckForInstrumentAdjust();
@@ -108,10 +112,10 @@ namespace RhythmGameAssets.Scripts
         public void NoteMissed()
         {
             hitNotifText.text = "Miss!";
-            hitNotifText.color = missColor;
+            hitNotifText.color = _missColor;
             hitNotif.SetActive(true);
             
-            _TotalNoteCount++;
+            _totalNoteCount++;
 
             CheckForDifficultyAdjust(0.0f);
             CheckForInstrumentAdjust();
@@ -143,36 +147,60 @@ namespace RhythmGameAssets.Scripts
 
             switch (accuracy)
             {
-                case > 0.8f when _currentDifficulty < Difficulty.Expert:
+                case > 0.8f when _currentDifficulty < Difficulty.EXPERT:
                     _currentDifficulty++;
                     _recentNoteScores.Clear();
                     break;
-                case < 0.5f when _currentDifficulty > Difficulty.Easy:
+                case < 0.5f when _currentDifficulty > Difficulty.EASY:
                     _currentDifficulty--;
                     _recentNoteScores.Clear();
                     break;
             }
 
-            //difficultyText.text = GetCurrentDifficulty();
-            interpBackground = true;
-            interpStart = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            _interpColors = true;
+            _interpStart = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         }
 
         public void ResetCurrentDifficulty()
         {
+            Difficulty before = _currentDifficulty;
+
             _currentDifficulty = SavedSettings.Instance.Difficulty.ToUpper() switch
             {
-                "EASY" => Difficulty.Easy,
-                "MEDIUM" => Difficulty.Medium,
-                "EXPERT" => Difficulty.Expert,
-                _ => Difficulty.Easy,
+                "EASY" => Difficulty.EASY,
+                "MEDIUM" => Difficulty.MEDIUM,
+                "EXPERT" => Difficulty.EXPERT,
+                _ => Difficulty.EASY,
             };
+
+            if (before == _currentDifficulty) return;
+
+            _interpColors = true;
+            _interpStart = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        }
+
+        public void SetCurrentDifficulty(string diff)
+        {
+            Difficulty before = _currentDifficulty;
+
+            _currentDifficulty = diff.ToUpper() switch
+            {
+                "EASY" => Difficulty.EASY,
+                "MEDIUM" => Difficulty.MEDIUM,
+                "EXPERT" => Difficulty.EXPERT,
+                _ => Difficulty.EASY,
+            };
+
+            if (before == _currentDifficulty) return;
+
+            _interpColors = true;
+            _interpStart = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         }
 
         public void ResetTexts()
         {
-            _TotalNoteCount = 0;
-            _CurrentHitScore = 0.0f;
+            _totalNoteCount = 0;
+            _currentHitScore = 0.0f;
 
             hitNotif.SetActive(false);
             hitNotifText.text = "";
@@ -181,31 +209,51 @@ namespace RhythmGameAssets.Scripts
             scoreText.text = "0";
         }
 
-        private void AdjustBackgroundColor()
+        private void AdjustColors()
         {
-            Color color = DifficultyToColor(this._currentDifficulty);
-            if (color == background.color) return;
+            Color bgColor = DifficultyToBgColor(this._currentDifficulty);
+            Color textBgColor = DifficultyToTextBgColor(this._currentDifficulty);
 
-            Vector3 oldColor = new Vector3(background.color.r, background.color.g, background.color.b);
-            Vector3 newColor = new Vector3(color.r, color.g, color.b);
+            // These should always be changing at the same rate/time
+            if (bgColor == background.color) return;
+
+            Vector3 oldBgColor = new Vector3(background.color.r, background.color.g, background.color.b);
+            Vector3 newBgColor = new Vector3(bgColor.r, bgColor.g, bgColor.b);
+
+            Vector3 oldTextBgColor = new Vector3(textBackground.color.r, textBackground.color.g, textBackground.color.b);
+            Vector3 newTextBgColor = new Vector3(textBgColor.r, textBgColor.g, textBgColor.b);
 
             long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            float t = (float) (now - interpStart) / interpTime;
+            float t = (float) (now - _interpStart) / _interpTime;
 
-            if (t >= 1.0) interpBackground = false;
+            if (t >= 1.0) _interpColors = false;
 
-            Vector3 interpColor = Vector3.Lerp(oldColor, newColor, t);
-            background.color = new Color(interpColor.x, interpColor.y, interpColor.z);
+            Vector3 interpBgColor = Vector3.Lerp(oldBgColor, newBgColor, t);
+            background.color = new Color(interpBgColor.x, interpBgColor.y, interpBgColor.z);
+
+            Vector3 interpTextBgColor = Vector3.Lerp(oldTextBgColor, newTextBgColor, t);
+            textBackground.color = new Color(interpTextBgColor.x, interpTextBgColor.y, interpTextBgColor.z);
         }
 
-        private Color DifficultyToColor(Difficulty difficulty)
+        private Color DifficultyToBgColor(Difficulty difficulty)
         {
             return difficulty switch
             {
-                Difficulty.Easy => easyColor,
-                Difficulty.Medium => mediumColor,
-                Difficulty.Expert => expertColor,
-                _ => Color.white,
+                Difficulty.EASY => _easyBgColor,
+                Difficulty.MEDIUM => _mediumBgColor,
+                Difficulty.EXPERT => _expertBgColor,
+                _ => _easyBgColor,
+            };
+        }
+
+        private Color DifficultyToTextBgColor(Difficulty difficulty)
+        {
+            return difficulty switch
+            {
+                Difficulty.EASY => _easyTextBgColor,
+                Difficulty.MEDIUM => _mediumTextBgColor,
+                Difficulty.EXPERT => _expertTextBgColor,
+                _ => _easyTextBgColor,
             };
         }
 
@@ -216,7 +264,7 @@ namespace RhythmGameAssets.Scripts
 
         private void CheckForInstrumentAdjust()
         {
-            if (_TotalNoteCount % HIT_COUNT_INTERVAL == 0)
+            if (_totalNoteCount % _hitCountInterval == 0)
             {
                 AdjustInstrumentSound();
             }
@@ -224,10 +272,10 @@ namespace RhythmGameAssets.Scripts
 
         private void AdjustInstrumentSound()
         {
-            float scorePercentage = _CurrentHitScore / HIT_COUNT_INTERVAL;
+            float scorePercentage = _currentHitScore / _hitCountInterval;
             communicator.SendSoundPacket(scorePercentage);
 
-            _CurrentHitScore = 0f;
+            _currentHitScore = 0f;
         }
 
         private void Start()
@@ -238,16 +286,17 @@ namespace RhythmGameAssets.Scripts
             var difficulty = SavedSettings.Instance.Difficulty;
             //difficultyText.text = difficulty;
             if (!Enum.TryParse(difficulty, ignoreCase: true, out _currentDifficulty))
-                _currentDifficulty = Difficulty.Easy;
+                _currentDifficulty = Difficulty.EASY;
 
-            background.color = DifficultyToColor(this._currentDifficulty);
+            background.color = DifficultyToBgColor(this._currentDifficulty);
+            textBackground.color = DifficultyToTextBgColor(this._currentDifficulty);
         }
 
         private void Update()
         {
-            if (!interpBackground) return;
+            if (!_interpColors) return;
 
-            AdjustBackgroundColor();            
+            AdjustColors();
         }
     }
 }

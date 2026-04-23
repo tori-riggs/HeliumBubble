@@ -101,10 +101,10 @@ namespace RhythmGameAssets.Scripts
                     }
                 }
             }
-            bool swapped = true;
+            // Bubble sort: Easy, Medium, and Expert
             for (int i = 0; i < difficulties.Count; i++)
             {
-                swapped = false;
+                bool swapped = false;
                 for (int j = 0; j < difficulties.Count - i - 1; j++)
                 {
                     if (sortOrder[j] > sortOrder[j + 1])

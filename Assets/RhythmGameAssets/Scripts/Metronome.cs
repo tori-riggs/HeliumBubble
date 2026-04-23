@@ -18,11 +18,11 @@ namespace RhythmGameAssets.Scripts
         private double dspStartTime;
         private bool isPlayingScheduled = false;
 
-        private bool IsPaused = false;
+        private bool IsPaused = true;
 
         private bool _NeedsSync = true;
         private int _NumSyncTries = 0;
-        private readonly int MAX_SYNC_TRIES = 100;
+        private readonly int MAX_SYNC_TRIES = 1000;
 
         private float _songTime;
         private const float _songTimerXScale = 0.985f;

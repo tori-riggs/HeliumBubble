@@ -148,8 +148,11 @@ namespace RhythmGameAssets.Scripts
                                 // Code to remove the empty entries by CBinet:
                                 // https://stackoverflow.com/a/44868165/16776633
                                 string[] header = Regex.Split(line,
-                                    @"([A-Z][^A-Z\]]+)").Where(s => s != string.Empty).ToArray();
-                                // Check which chart the notes are for
+                                    @"([A-Z][a-z]*)([A-Z][^\]]*)");
+                                // Check which chart the notes are 
+
+                                if (header.Length != 4) continue;
+
                                 if (Enum.IsDefined(typeof(Difficulties), header[1].ToUpper())
                                     && Enum.IsDefined(typeof(Instruments), header[2].ToUpper()))
                                 {
