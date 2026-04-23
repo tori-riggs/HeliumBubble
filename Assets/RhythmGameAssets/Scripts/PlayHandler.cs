@@ -86,32 +86,33 @@ namespace RhythmGameAssets.Scripts
             if (_chart.Difficulty != targetDifficulty.ToUpper())
                 SwapChart(targetDifficulty);
 
-            long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            //long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             if (KeyboardPressFromDirection(NoteDirection.Left))
             {
                 leftTarget.PlayPop();
-                _lastKeyPress = now;
+                //_lastKeyPress = now;
             }
             if (KeyboardPressFromDirection(NoteDirection.Up))
             {
                 upTarget.PlayPop();
-                _lastKeyPress = now;
+                //_lastKeyPress = now;
             }
             if (KeyboardPressFromDirection(NoteDirection.Down))
             {
                 downTarget.PlayPop();
-                _lastKeyPress = now;
+                //_lastKeyPress = now;
             }
             if (KeyboardPressFromDirection(NoteDirection.Right))
             {
                 rightTarget.PlayPop();
-                _lastKeyPress = now;
+                //_lastKeyPress = now;
             }
 
-            bool wasAFK = _isAFK;
-            _isAFK = now - _lastKeyPress > AFK_TIME;
+            //bool wasAFK = _isAFK;
+            //_isAFK = now - _lastKeyPress > AFK_TIME;
 
-            bool needsReset = wasAFK != _isAFK;
+            //bool needsReset = wasAFK != _isAFK;
+            bool needsReset = Keyboard.current.backspaceKey.wasPressedThisFrame;
             if (needsReset)
             {
                 _scoreHandler.SetCurrentDifficulty("EASY");
