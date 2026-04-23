@@ -12,6 +12,10 @@ namespace RhythmGameAssets.Scripts
         // Leave null on normal note prefabs.
         [SerializeField] private Transform tail;
 
+        [Header("Bubble")]
+        [SerializeField] private SpriteRenderer bubbleRenderer;
+        [SerializeField] private Sprite[] bubbleSprites;
+
         private Vector3 _targetHitPoint;
         private float _speed;
         private bool _initialized = false;
@@ -41,6 +45,8 @@ namespace RhythmGameAssets.Scripts
             HoldDurationSeconds = holdDurationSeconds;
             _isHeld = false;
             _initialized = true;
+
+            bubbleRenderer.sprite = bubbleSprites[Random.Range(0, bubbleSprites.Length)];
 
             if (tail != null)
             {

@@ -118,7 +118,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 2}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3642388272928399869}
@@ -172,12 +172,12 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -1
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -9136834448258697486, guid: ee1c712f3eb8ac7409c2f0790b294d5c, type: 3}
+  m_Sprite: {fileID: 5848950044224266540, guid: dd2ecaca9d57fdc4cb195071ef2c1623, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1.61, y: 1.7}
+  m_Size: {x: 3.17, y: 3.35}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -290,3 +290,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NoteBehavior
   destroyAfterPassingDistance: 1.5
   tail: {fileID: 3649124819270407776}
+  bubbleRenderer: {fileID: 6602537328036265747}
+  bubbleSprites:
+  - {fileID: 5848950044224266540, guid: dd2ecaca9d57fdc4cb195071ef2c1623, type: 3}
+  - {fileID: 8096441081373802830, guid: 9e89db6bceabd8149ae8bbf806745075, type: 3}
+  - {fileID: 7879595468006527788, guid: 8a0f164a86c5f09478bacecae49a3239, type: 3}
+  - {fileID: -6715553064236688701, guid: 5dc89615444215d41b3c9440aa31ca09, type: 3}
