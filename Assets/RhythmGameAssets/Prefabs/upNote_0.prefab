@@ -289,7 +289,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NoteBehavior
   destroyAfterPassingDistance: 1.5
-  tail: {fileID: 8063174624331183187}
+  tail: {fileID: 7089089794179863220}
   bubbleRenderer: {fileID: 6405921927412715471}
   bubbleSprites:
   - {fileID: 5848950044224266540, guid: dd2ecaca9d57fdc4cb195071ef2c1623, type: 3}

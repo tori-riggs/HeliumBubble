@@ -10,7 +10,7 @@ namespace RhythmGameAssets.Scripts
         [Header("Hold Note")]
         // Assign a child Transform in hold-note prefabs (top pivot, extending downward).
         // Leave null on normal note prefabs.
-        [SerializeField] private Transform tail;
+        [SerializeField] private SpriteRenderer tail;
 
         [Header("Bubble")]
         [SerializeField] private SpriteRenderer bubbleRenderer;
@@ -18,7 +18,6 @@ namespace RhythmGameAssets.Scripts
 
         private Vector3 _targetHitPoint;
         private float _speed;
-        private bool _initialized = false;
     
         private float _tailHeight;      // world-unit height of a full tail
         private bool _isHeld = false;
@@ -29,6 +28,17 @@ namespace RhythmGameAssets.Scripts
 
         private float HoldDurationSeconds { get; set; }
         private NotePool _pool;
+
+        private SpriteRenderer _selfSprite;
+        private Color _tailColor;
+        private Color _tailGrey;
+
+        public void Start()
+        {
+            _selfSprite = GetComponent<SpriteRenderer>();
+            _tailColor = tail.color;
+            _tailGrey = _tailColor / 2.0f;
+        }
 
         // Called by NotePool right after the note is taken from the pool.
         public void Pool_Initialize(NotePool pool, ChartNote note)
@@ -44,7 +54,6 @@ namespace RhythmGameAssets.Scripts
             _speed = moveSpeed;
             HoldDurationSeconds = holdDurationSeconds;
             _isHeld = false;
-            _initialized = true;
 
             bubbleRenderer.sprite = bubbleSprites[Random.Range(0, bubbleSprites.Length)];
 
@@ -56,7 +65,7 @@ namespace RhythmGameAssets.Scripts
                 {
                     // Scale the tail to represent the full hold duration.
                     // Assumes a top-pivot child so scaling extends downward.
-                    tail.localScale = new Vector3(tail.localScale.x, _tailHeight, tail.localScale.z);
+                    tail.transform.localScale = new Vector3(tail.transform.localScale.x, _tailHeight, tail.transform.localScale.z);
                 }
             }
         }
@@ -66,7 +75,28 @@ namespace RhythmGameAssets.Scripts
         public void StartHold()
         {
             _isHeld = true;
+            bubbleRenderer.enabled = false;
             transform.position = _targetHitPoint;
+        }
+
+        public void KeyReleasedEarly()
+        {
+            _isHeld = false;
+            GreyOut();
+        }
+
+        public void GreyOut()
+        {
+            _selfSprite.color = Color.grey;
+            tail.color = _tailGrey;
+            bubbleRenderer.color = Color.grey;
+        }
+
+        public void ResetColors()
+        {
+            _selfSprite.color = Color.white;
+            tail.color = _tailColor;
+            bubbleRenderer.color = Color.white;
         }
 
         // Called every frame while the note is being held.
@@ -76,7 +106,7 @@ namespace RhythmGameAssets.Scripts
             if (tail == null) return;
 
             float remaining = _tailHeight * (1f - Mathf.Clamp01(progress));
-            tail.localScale = new Vector3(tail.localScale.x, Mathf.Max(remaining, 0f), tail.localScale.z);
+            tail.transform.localScale = new Vector3(tail.transform.localScale.x, Mathf.Max(remaining, 0f), tail.transform.localScale.z);
         }
 
         // Despawns note
@@ -91,7 +121,11 @@ namespace RhythmGameAssets.Scripts
             Note = null;
             _isHeld = false;
             HoldDurationSeconds = 0f;
+            bubbleRenderer.enabled = true;
+
             if (tail != null) tail.gameObject.SetActive(false);
+
+            ResetColors();
         }
     
         // Update is called once per frame

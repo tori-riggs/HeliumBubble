@@ -289,7 +289,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   destroyAfterPassingDistance: 1.5
-  tail: {fileID: 1677803257476073622}
+  tail: {fileID: 8383945420602548334}
   bubbleRenderer: {fileID: 8221200334583667951}
   bubbleSprites:
   - {fileID: 5848950044224266540, guid: dd2ecaca9d57fdc4cb195071ef2c1623, type: 3}

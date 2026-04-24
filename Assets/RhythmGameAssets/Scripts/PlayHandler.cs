@@ -46,6 +46,8 @@ namespace RhythmGameAssets.Scripts
             { NoteDirection.Right, false }
         };
 
+        private Dictionary<NoteBehavior, double> _notesToDespawn = new();
+
         private Chart _chart; // current chart
         
         private double DelaySeconds => delay / 1000.0;
@@ -59,12 +61,15 @@ namespace RhythmGameAssets.Scripts
         private bool _isAFK = false;
         private const long AFK_TIME = 20000;
 
+        private int _maximumPressWindow;
+
         private long _lastKeyPress;
 
         private void Start()
         {
             LoadChart();
             _lastKeyPress = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            _maximumPressWindow = _scoreHandler.GetMaxiumMargin();
 
             //foreach (ChartNote note in _chart.Notes)
             //{
@@ -113,6 +118,7 @@ namespace RhythmGameAssets.Scripts
             //_isAFK = now - _lastKeyPress > AFK_TIME;
 
             //bool needsReset = wasAFK != _isAFK;
+
             bool needsReset = Keyboard.current.backspaceKey.wasPressedThisFrame;
             if (needsReset)
             {
@@ -149,17 +155,42 @@ namespace RhythmGameAssets.Scripts
             if (activeNoteIds.Count == 0) return;
 
             double nextNoteTime = GetActiveNoteTime();
-            while (songTime - 100.0 >= nextNoteTime)
+            // Once we are outside the maximum window, grey the notes
+            // and mark for despawn when needed
+            while (songTime - _maximumPressWindow >= nextNoteTime)
             {
-                var note = activeNoteIds.Dequeue();
-                notePool.Release(notePool.GetActiveNote(note));
-                // TODO: disappear after a while
+                ChartNote note = activeNoteIds.Dequeue();
+                NoteBehavior behavior = notePool.GetActiveNote(note);
+
+                double releaseTime = GetNoteTime(note) + GetNoteLengthMs(note) + 200;
+                _notesToDespawn.Add(behavior, releaseTime);
+                behavior.GreyOut();
+
                 if (!_isAFK) _scoreHandler.NoteMissed();
         
-                if (activeNoteIds.Count == 0) return;
+                if (activeNoteIds.Count == 0) break;
         
                 nextNoteTime = GetActiveNoteTime();
             }
+
+            // Since hold times can be diff, queue is not guaranteed
+            // to be in order, so we'll just look at all of them :/
+            List<NoteBehavior> behaviorsToRemove = new();
+            foreach ((NoteBehavior behavior, double releaseTime) in _notesToDespawn)
+            {
+                if (songTime - 100.0 < releaseTime) continue;
+
+                behavior.Despawn();
+                behaviorsToRemove.Add(behavior);
+            }
+
+            // Remove from the tracker
+            foreach (NoteBehavior behavior in behaviorsToRemove)
+            {
+                _notesToDespawn.Remove(behavior);
+            }
+
+            if (activeNoteIds.Count == 0) return;
 
             if (Keyboard.current != null &&
                 (KeyboardPressFromDirection(NoteDirection.Left)) ||
@@ -249,9 +280,20 @@ namespace RhythmGameAssets.Scripts
 
                 if (holdComplete || keyReleased)
                 {
-                    _scoreHandler.HoldNoteScoring(progress);
-                    notePool.Release(noteBehavior);
                     toRelease.Add(dir);
+                    _scoreHandler.HoldNoteScoring(progress);
+                }
+
+                // grace period for when to count a "good" release
+                // TODO: Add scoring based on release time?
+                if (holdComplete || (keyReleased && holdDurationMs - holdElapsedMs <= 110))
+                {
+                    noteBehavior.Despawn();
+                }
+
+                if (keyReleased && holdDurationMs - holdElapsedMs > 110)
+                {
+                    noteBehavior.KeyReleasedEarly();
                 }
             }
 
