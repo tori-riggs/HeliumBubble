@@ -4,6 +4,7 @@ using MainMenu;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.Serialization;
 
 namespace RhythmGameAssets.Scripts
 {
@@ -27,6 +28,8 @@ namespace RhythmGameAssets.Scripts
         public SpriteRenderer background;
         public SpriteRenderer textBackground;
 
+        // private GameObject _controls = GameObject.FindWithTag("ShowControls");
+        [SerializeField] private GameObject controls;
         private int _totalNoteCount = 0;
         private float _currentHitScore = 0;
 
@@ -71,8 +74,8 @@ namespace RhythmGameAssets.Scripts
         {
             // x ms early or x ms late
             double delay = Math.Abs(hitTiming);
-
             float noteAccuracy;
+            controls.SetActive(false); // hide controls
             if (delay <= perfectMargin)
             {
                 hitNotifText.text = "Perfect!";
@@ -212,6 +215,7 @@ namespace RhythmGameAssets.Scripts
             Score = 0;
 
             scoreText.text = "0";
+            controls.SetActive(true); // show controls popup
         }
 
         private void AdjustColors()
@@ -286,6 +290,7 @@ namespace RhythmGameAssets.Scripts
         private void Start()
         {
             hitNotif.SetActive(false);
+            controls.SetActive(true); // show controls at the start
             Score = 0;
                         
             var difficulty = SavedSettings.Instance.Difficulty;
