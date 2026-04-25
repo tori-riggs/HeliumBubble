@@ -215,19 +215,33 @@ namespace RhythmGameAssets.Scripts
 
                     if (KeyboardPressFromDirection(note.Direction))
                     {
-                        noteHitSound.PlayScheduled(AudioSettings.dspTime);
-
                         _inputStates[note.Direction] = false;
 
-                        _scoreHandler.NoteHitScoring(songTime - timeToNextNote);
+                        double hitTiming = songTime - timeToNextNote;
+                        _scoreHandler.NoteHitScoring(hitTiming);
+
+                        if (Math.Abs(hitTiming) <= _maximumPressWindow)
+                        {
+                            noteHitSound.PlayScheduled(AudioSettings.dspTime);
+                        }
 
                         if (note.Length > 0) // hold note: freeze head and begin tracking the tail
                         {
                             var noteBehavior = notePool.GetActiveNote(note);
-                            noteBehavior.StartHold();
-                            _heldNoteIds[note.Direction] = note;
-                            _heldNoteStartSongTime[note.Direction] = songTime;
-                            // Don't release from the pool yet; UpdateHeldNotes will do it
+                            if (Math.Abs(hitTiming) <= _maximumPressWindow)
+                            {
+                                noteBehavior.StartHold();
+                                _heldNoteIds[note.Direction] = note;
+                                _heldNoteStartSongTime[note.Direction] = songTime;
+                                // Don't release from the pool yet; UpdateHeldNotes will do it
+                            }
+                            else
+                            {
+                                // Pressed too early
+                                noteBehavior.GreyOut();
+                                double releaseTime = GetNoteTime(note) + GetNoteLengthMs(note) + 200;
+                                _notesToDespawn.Add(noteBehavior, releaseTime);
+                            }
                         }
                         else
                         {
