@@ -69,7 +69,7 @@ namespace RhythmGameAssets.Scripts
         {
             LoadChart();
             _lastKeyPress = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            _maximumPressWindow = _scoreHandler.GetMaxiumMargin();
+            _maximumPressWindow = _scoreHandler.GetMaximumMargin();
 
             //foreach (ChartNote note in _chart.Notes)
             //{

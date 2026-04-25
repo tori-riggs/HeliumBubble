@@ -62,7 +62,7 @@ namespace RhythmGameAssets.Scripts
             _pointsPerNote = chart.PointsPerNote;
         }
 
-        public int GetMaxiumMargin()
+        public int GetMaximumMargin()
         {
             return goodMargin;
         }
