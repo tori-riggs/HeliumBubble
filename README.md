@@ -1,5 +1,5 @@
 # Helium Bubble: Rhythm Jam
-Our experimental multiplayer rhythm game! Currently only works as a multiplayer experence while running the score board script here: https://github.com/evanrg/helium-bubble-web-server/
+Our experimental multiplayer rhythm game! **Currently only works as a multiplayer experence while running the score board script here: https://github.com/evanrg/helium-bubble-web-server/**
 
 ## What it is
 Helium Bubble: Rhythm Jam is a multiplayer rhythm game that has you playing an instrument in a band. Each player selects one of 5 instruments, Drums, Keyboard, Guitar, Bass, and Piano. Then, you will be playing the rhythm that aligns with that instrument. But the cool part is, the better or worse you do, the louder or quieter that instrument gets!
